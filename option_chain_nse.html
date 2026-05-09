@@ -55,16 +55,8 @@
             gap: 0.75rem;
         }
         
-        h1 {
-            font-size: 1.3rem;
-            margin-bottom: 0.25rem;
-        }
-        
-        .header-subtitle {
-            font-size: 0.7rem;
-            color: var(--txt3);
-            width: 100%;
-        }
+        h1 { font-size: 1.3rem; margin-bottom: 0.25rem; }
+        .header-subtitle { font-size: 0.7rem; color: var(--txt3); width: 100%; }
         
         .header-controls {
             display: flex;
@@ -88,55 +80,35 @@
             gap: 6px;
         }
         
-        .refresh-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
-        }
+        .refresh-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3); }
+        .refresh-btn.loading svg { animation: spin 1s linear infinite; }
         
-        .refresh-btn:active {
-            transform: translateY(0);
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        .refresh-btn.loading svg {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .config-btn, .upload-btn {
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
         }
         
         .config-btn {
             background: var(--s2);
             border: 1px solid var(--border);
             color: var(--c1);
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: all 0.2s;
         }
         
-        .config-btn:hover {
-            border-color: var(--c1);
-            background: rgba(88, 166, 255, 0.1);
-        }
+        .config-btn:hover { border-color: var(--c1); background: rgba(88, 166, 255, 0.1); }
         
         .upload-btn {
             background: var(--c3);
-            border: none;
             color: #fff;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.7rem;
-            transition: all 0.2s;
         }
         
-        .upload-btn:hover {
-            background: #ff6157;
-        }
+        .upload-btn:hover { background: #ff6157; }
         
-        /* MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -176,30 +148,11 @@
             border-bottom: 1px solid var(--border);
         }
         
-        .modal-title {
-            font-size: 1rem;
-            font-weight: 600;
-        }
+        .modal-title { font-size: 1rem; font-weight: 600; }
+        .close-btn { background: none; border: none; color: var(--txt2); font-size: 1.5rem; cursor: pointer; }
         
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--txt2);
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .config-group {
-            margin-bottom: 1rem;
-        }
-        
-        .config-label {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--txt2);
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
+        .config-group { margin-bottom: 1rem; }
+        .config-label { display: block; font-size: 0.75rem; color: var(--txt2); margin-bottom: 0.5rem; font-weight: 600; }
         
         .config-input {
             width: 100%;
@@ -212,11 +165,7 @@
             margin-bottom: 0.5rem;
         }
         
-        .config-input:focus {
-            outline: none;
-            border-color: var(--c1);
-            box-shadow: 0 0 8px rgba(88, 166, 255, 0.2);
-        }
+        .config-input:focus { outline: none; border-color: var(--c1); box-shadow: 0 0 8px rgba(88, 166, 255, 0.2); }
         
         .add-btn, .save-config-btn {
             background: var(--c1);
@@ -248,22 +197,8 @@
             margin-bottom: 1rem;
         }
         
-        @media (min-width: 480px) {
-            .stock-cards-container {
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
-        }
-        
-        @media (min-width: 768px) {
-            .stock-cards-container {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 1rem;
-            }
-            .container {
-                padding: 1.5rem;
-            }
-        }
+        @media (min-width: 480px) { .stock-cards-container { grid-template-columns: 1fr 1fr; gap: 1rem; } }
+        @media (min-width: 768px) { .stock-cards-container { grid-template-columns: repeat(4, 1fr); gap: 1rem; } .container { padding: 1.5rem; } }
         
         .stock-btn {
             background: var(--s2);
@@ -275,35 +210,11 @@
             text-align: left;
         }
         
-        .stock-btn:active {
-            border-color: var(--c1);
-            background: rgba(88, 166, 255, 0.1);
-        }
+        .stock-btn:active, .stock-btn.active { border-color: var(--c1); background: rgba(88, 166, 255, 0.1); }
         
-        .stock-btn.active {
-            border-color: var(--c1);
-            background: rgba(88, 166, 255, 0.1);
-        }
-        
-        .sb-ticker {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--c1);
-            letter-spacing: 1px;
-        }
-        
-        .sb-name {
-            font-size: 0.65rem;
-            color: var(--txt2);
-            margin-top: 3px;
-        }
-        
-        .sb-price {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--txt);
-            margin-top: 0.5rem;
-        }
+        .sb-ticker { font-size: 0.75rem; font-weight: 600; color: var(--c1); letter-spacing: 1px; }
+        .sb-name { font-size: 0.65rem; color: var(--txt2); margin-top: 3px; }
+        .sb-price { font-size: 0.9rem; font-weight: 600; color: var(--txt); margin-top: 0.5rem; }
         
         .data-status {
             font-size: 0.65rem;
@@ -337,53 +248,16 @@
             flex-shrink: 0;
         }
         
-        .exp-btn.active {
-            background: rgba(88, 166, 255, 0.12);
-            border-color: var(--c1);
-            color: var(--c1);
-        }
+        .exp-btn.active { background: rgba(88, 166, 255, 0.12); border-color: var(--c1); color: var(--c1); }
         
-        .layout {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+        .layout { display: flex; flex-direction: column; gap: 1rem; }
+        @media (min-width: 900px) { .layout { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; } }
         
-        @media (min-width: 900px) {
-            .layout {
-                display: grid;
-                grid-template-columns: 1fr 350px;
-                gap: 1.5rem;
-            }
-        }
+        .chain-wrap { background: var(--s1); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .chain-header { padding: 0.75rem; border-bottom: 1px solid var(--border); background: var(--s2); font-size: 0.7rem; }
+        .chain-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-height: 50vh; overflow-y: auto; }
         
-        .chain-wrap {
-            background: var(--s1);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .chain-header {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border);
-            background: var(--s2);
-            font-size: 0.7rem;
-        }
-        
-        .chain-table-wrap {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            max-height: 50vh;
-            overflow-y: auto;
-        }
-        
-        table.chain {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.65rem;
-        }
-        
+        table.chain { width: 100%; border-collapse: collapse; font-size: 0.65rem; }
         table.chain th {
             padding: 0.4rem 0.5rem;
             background: var(--s3);
@@ -403,134 +277,49 @@
             white-space: nowrap;
         }
         
-        table.chain tr.atm-row td {
-            background: rgba(255, 215, 0, 0.05);
-        }
+        table.chain tr.atm-row td { background: rgba(255, 215, 0, 0.05); }
+        .strike-cell { font-weight: 600; color: #ffd700; }
         
-        .strike-cell {
-            font-weight: 600;
-            color: #ffd700;
-        }
+        .sidebar { display: flex; flex-direction: column; gap: 0.75rem; }
+        .panel { background: var(--s1); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; }
+        .panel-title { font-size: 0.65rem; font-weight: 600; color: var(--txt2); margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
         
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
+        .analysis-row { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 0.5rem; }
+        .analysis-label { color: var(--txt2); }
+        .analysis-value { font-weight: 600; color: var(--c1); }
         
-        .panel {
-            background: var(--s1);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 0.75rem;
-        }
+        .news-item { background: var(--s2); border-left: 3px solid var(--c1); padding: 0.5rem; margin-bottom: 0.5rem; border-radius: 4px; font-size: 0.65rem; }
+        .news-title { font-weight: 600; color: var(--c1); margin-bottom: 0.25rem; }
+        .news-meta { font-size: 0.6rem; color: var(--txt3); }
         
-        .panel-title {
-            font-size: 0.65rem;
-            font-weight: 600;
-            color: var(--txt2);
-            margin-bottom: 0.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border);
-        }
+        .csv-upload { display: none; }
         
-        .analysis-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            margin-bottom: 0.5rem;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--s2); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--txt2); }
         
-        .analysis-label {
-            color: var(--txt2);
-        }
-        
-        .analysis-value {
-            font-weight: 600;
-            color: var(--c1);
-        }
-        
-        .sentiment-bar {
-            width: 100%;
-            height: 4px;
-            background: var(--s2);
-            border-radius: 2px;
-            overflow: hidden;
-            margin: 0.5rem 0;
-        }
-        
-        .sentiment-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--c3), var(--c4), var(--c2));
-        }
-        
-        .news-item {
-            background: var(--s2);
-            border-left: 3px solid var(--c1);
-            padding: 0.5rem;
-            margin-bottom: 0.5rem;
-            border-radius: 4px;
-            font-size: 0.65rem;
-        }
-        
-        .news-title {
-            font-weight: 600;
-            color: var(--c1);
-            margin-bottom: 0.25rem;
-        }
-        
-        .news-meta {
-            font-size: 0.6rem;
-            color: var(--txt3);
-        }
-        
-        .chart-container {
-            position: relative;
-            height: 250px;
-            margin-top: 0.5rem;
-        }
-        
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 300px;
-            }
-        }
-        
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--s2);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--txt2);
-        }
-        
-        input, button, select {
-            font-size: 16px;
-        }
-        
-        button {
-            min-height: 44px;
-            min-width: 44px;
+        input, button, select { font-size: 16px; }
+        button { min-height: 44px; }
+
+        .error-msg {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid var(--c3);
+            color: var(--c3);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
         }
 
-        .csv-upload {
-            display: none;
-        }
-
-        .upload-info {
-            font-size: 0.65rem;
-            color: var(--txt3);
-            margin-top: 0.5rem;
+        .success-msg {
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid var(--c2);
+            color: var(--c2);
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-size: 0.75rem;
         }
     </style>
 </head>
@@ -539,7 +328,7 @@
         <header>
             <div>
                 <h1>📊 NSE Options Live</h1>
-                <div class="header-subtitle">Real-time F&O Analysis | LIVE DATA from CSV</div>
+                <div class="header-subtitle">Real-time F&O Analysis | LIVE DATA from CSV v1.3.1</div>
             </div>
             <div class="header-controls">
                 <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
@@ -555,8 +344,10 @@
         </header>
 
         <div class="data-status" id="dataStatus">
-            ✅ Loaded from: op070526.csv | Stocks: BHARTIARTL, JIOFIN, SBIN, TATASTEEL
+            ✅ Loaded from: op070526.csv | Stocks: 4 | Ready
         </div>
+        
+        <div id="messageBox"></div>
         
         <!-- CONFIG MODAL -->
         <div class="modal" id="configModal">
@@ -592,9 +383,9 @@
                             <thead>
                                 <tr>
                                     <th>CE LTP</th>
-                                    <th>CE OI</th>
+                                    <th>CE OI (L)</th>
                                     <th>Strike</th>
-                                    <th>PE OI</th>
+                                    <th>PE OI (L)</th>
                                     <th>PE LTP</th>
                                 </tr>
                             </thead>
@@ -615,9 +406,6 @@
                         <span class="analysis-label">Spot</span>
                         <span class="analysis-value" id="spotPrice">—</span>
                     </div>
-                    <div class="sentiment-bar">
-                        <div class="sentiment-fill" id="sentimentFill"></div>
-                    </div>
                     <div class="analysis-row" style="margin-top: 0.5rem;">
                         <span class="analysis-value" id="signalVerdict">Analyzing...</span>
                     </div>
@@ -626,13 +414,6 @@
                 <div class="panel">
                     <div class="panel-title">📰 Market News</div>
                     <div id="newsList"></div>
-                </div>
-                
-                <div class="panel">
-                    <div class="panel-title">OI Chart</div>
-                    <div class="chart-container">
-                        <canvas id="oiChart"></canvas>
-                    </div>
                 </div>
             </div>
         </div>
@@ -669,7 +450,13 @@
         let stocksData = INITIAL_DATA;
         let currentStock = Object.keys(stocksConfig)[0] || 'BHARTIARTL';
         let currentExpiry = null;
-        let oiChart = null;
+        
+        function showMessage(msg, type = 'success') {
+            const box = document.getElementById('messageBox');
+            const className = type === 'success' ? 'success-msg' : 'error-msg';
+            box.innerHTML = `<div class="${className}">${msg}</div>`;
+            setTimeout(() => box.innerHTML = '', 3000);
+        }
         
         document.addEventListener('DOMContentLoaded', () => {
             initializeData();
@@ -708,7 +495,7 @@
         
         function selectStock(ticker) {
             currentStock = ticker;
-            if (stocksData[ticker]) {
+            if (stocksData[ticker] && Object.keys(stocksData[ticker]['expiries']).length > 0) {
                 currentExpiry = Object.keys(stocksData[ticker]['expiries']).sort()[0];
             }
             document.querySelectorAll('.stock-btn').forEach(b => b.classList.remove('active'));
@@ -720,7 +507,6 @@
             renderExpiries();
             renderChain();
             updateAnalysis();
-            updateChart();
             renderNews();
         }
         
@@ -731,6 +517,11 @@
             if (!stocksData[currentStock]) return;
             
             const expiries = Object.keys(stocksData[currentStock]['expiries']).sort();
+            if (expiries.length === 0) {
+                container.innerHTML = '<span style="color: var(--txt3); font-size: 0.7rem;">No data for this stock</span>';
+                return;
+            }
+            
             expiries.forEach(expiry => {
                 const btn = document.createElement('button');
                 btn.className = 'exp-btn' + (expiry === currentExpiry ? ' active' : '');
@@ -744,9 +535,17 @@
         }
         
         function renderChain() {
-            if (!stocksData[currentStock] || !currentExpiry) return;
+            if (!stocksData[currentStock] || !currentExpiry) {
+                document.querySelector('table.chain tbody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--txt3);">No data available</td></tr>';
+                return;
+            }
             
             const chain = stocksData[currentStock]['expiries'][currentExpiry];
+            if (!chain || chain.length === 0) {
+                document.querySelector('table.chain tbody').innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--txt3);">No contracts for this expiry</td></tr>';
+                return;
+            }
+            
             const ceData = chain.filter(x => x['option_type'] === 'CE');
             const peData = chain.filter(x => x['option_type'] === 'PE');
             const allStrikes = Array.from(new Set([...ceData.map(x => x['strike']), ...peData.map(x => x['strike'])])).sort((a, b) => a - b);
@@ -765,9 +564,9 @@
                 
                 row.innerHTML = `
                     <td>${ce ? ce['ltp'].toFixed(1) : '—'}</td>
-                    <td>${ce ? (ce['oi']/1000).toFixed(0) : '—'}</td>
+                    <td>${ce ? (ce['oi']/100000).toFixed(2) : '—'}</td>
                     <td class="strike-cell">${strike.toFixed(0)}</td>
-                    <td>${pe ? (pe['oi']/1000).toFixed(0) : '—'}</td>
+                    <td>${pe ? (pe['oi']/100000).toFixed(2) : '—'}</td>
                     <td>${pe ? pe['ltp'].toFixed(1) : '—'}</td>
                 `;
                 tbody.appendChild(row);
@@ -775,27 +574,30 @@
         }
         
         function updateAnalysis() {
-            if (!stocksData[currentStock] || !currentExpiry) return;
+            if (!stocksData[currentStock] || !currentExpiry) {
+                document.getElementById('pcrValue').textContent = '—';
+                document.getElementById('spotPrice').textContent = '—';
+                document.getElementById('signalVerdict').textContent = '—';
+                return;
+            }
             
             const chain = stocksData[currentStock]['expiries'][currentExpiry];
+            if (!chain || chain.length === 0) return;
+            
             const ceOi = chain.filter(x => x['option_type'] === 'CE').reduce((sum, x) => sum + x['oi'], 0);
             const peOi = chain.filter(x => x['option_type'] === 'PE').reduce((sum, x) => sum + x['oi'], 0);
-            const pcr = peOi / ceOi;
+            const pcr = ceOi > 0 ? peOi / ceOi : 0;
             
             document.getElementById('pcrValue').textContent = pcr.toFixed(2);
             document.getElementById('spotPrice').textContent = '₹' + stocksData[currentStock]['spot'].toFixed(2);
             
             let sentiment = 'NEUTRAL';
-            let sentimentPercent = 50;
             if (pcr > 1.3) {
                 sentiment = '📈 BULLISH';
-                sentimentPercent = 75;
             } else if (pcr < 0.9) {
                 sentiment = '📉 BEARISH';
-                sentimentPercent = 25;
             }
             
-            document.getElementById('sentimentFill').style.width = sentimentPercent + '%';
             document.getElementById('signalVerdict').textContent = sentiment;
         }
         
@@ -804,6 +606,11 @@
             container.innerHTML = '';
             
             const news = NEWS_DATA[currentStock] || [];
+            if (news.length === 0) {
+                container.innerHTML = '<p style="color: var(--txt3); font-size: 0.65rem;">No news available</p>';
+                return;
+            }
+            
             news.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'news-item';
@@ -812,46 +619,6 @@
                     <div class="news-meta">${item['date']} • ${item['source']}</div>
                 `;
                 container.appendChild(div);
-            });
-        }
-        
-        function updateChart() {
-            if (!stocksData[currentStock] || !currentExpiry) return;
-            
-            const chain = stocksData[currentStock]['expiries'][currentExpiry];
-            const ceChain = chain.filter(x => x['option_type'] === 'CE').sort((a, b) => a['strike'] - b['strike']);
-            const spot = stocksData[currentStock]['spot'];
-            const atmIndex = ceChain.findIndex(x => x['strike'] >= spot);
-            const strikes = ceChain.slice(Math.max(0, atmIndex - 4), atmIndex + 5).map(x => x['strike']);
-            
-            const ceOi = strikes.map(s => {const ce = ceChain.find(x => x['strike'] === s); return ce ? ce['oi'] : 0;});
-            
-            const ctx = document.getElementById('oiChart').getContext('2d');
-            if (oiChart) oiChart.destroy();
-            
-            oiChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: strikes.map(s => s.toFixed(0)),
-                    datasets: [{
-                        label: 'Call OI',
-                        data: ceOi,
-                        backgroundColor: 'rgba(63, 185, 80, 0.6)',
-                        borderColor: 'rgba(63, 185, 80, 1)',
-                        borderWidth: 1,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        x: { ticks: { color: '#8b949e', font: { size: 9 } } },
-                        y: { ticks: { color: '#8b949e', font: { size: 9 } } }
-                    }
-                }
             });
         }
         
@@ -864,8 +631,8 @@
                 update();
                 btn.classList.remove('loading');
                 btn.disabled = false;
-                alert('✅ Data refreshed!');
-            }, 1500);
+                showMessage('✅ Data refreshed successfully!', 'success');
+            }, 800);
         }
 
         function handleCSVUpload(event) {
@@ -876,23 +643,60 @@
             reader.onload = (e) => {
                 try {
                     const csv = e.target.result;
+                    console.log('📖 Parsing CSV file...');
                     const newData = parseCSVData(csv);
+                    
+                    if (!newData || Object.keys(newData).length === 0) {
+                        showMessage('❌ No valid data found in CSV file. Please check format.', 'error');
+                        return;
+                    }
+                    
                     stocksData = newData;
+                    currentStock = Object.keys(stocksData)[0] || 'BHARTIARTL';
+                    currentExpiry = null;
+                    if (stocksData[currentStock]) {
+                        currentExpiry = Object.keys(stocksData[currentStock]['expiries']).sort()[0];
+                    }
+                    
+                    renderStocks();
                     update();
-                    document.getElementById('dataStatus').textContent = '✅ Loaded from: ' + file.name + ' | Stocks: ' + Object.keys(stocksData).join(', ');
-                    alert('✅ CSV data loaded successfully!');
+                    
+                    const stockList = Object.keys(stocksData).join(', ');
+                    document.getElementById('dataStatus').textContent = '✅ Loaded from: ' + file.name + ' | Stocks: ' + Object.keys(stocksData).length + ' | Updated';
+                    showMessage('✅ CSV data loaded successfully! (' + file.name + ')', 'success');
                 } catch (error) {
-                    alert('❌ Error parsing CSV: ' + error.message);
+                    console.error('Error:', error);
+                    showMessage('❌ Error parsing CSV: ' + error.message, 'error');
                 }
             };
             reader.readAsText(file);
         }
 
         function parseCSVData(csv) {
+            console.log('🔍 Starting CSV parse...');
             const lines = csv.split('\n');
-            const headers = lines[0].split(',').map(h => h.trim());
-            const stocks_data = {};
             
+            if (lines.length < 2) {
+                throw new Error('CSV file is empty');
+            }
+            
+            // Parse header
+            const headerLine = lines[0];
+            const headers = headerLine.split(',').map(h => h.trim());
+            console.log('Headers:', headers);
+            
+            // Find column indices
+            const contractIdx = headers.findIndex(h => h.includes('CONTRACT_D'));
+            const priceIdx = headers.findIndex(h => h.includes('CLOSE_PRIC'));
+            const oiIdx = headers.findIndex(h => h.includes('OI_NO_CON'));
+            const volIdx = headers.findIndex(h => h.includes('TRADED_QUA'));
+            const spotIdx = headers.findIndex(h => h.includes('UNDRLNG_ST'));
+            
+            if (contractIdx === -1) {
+                throw new Error('Cannot find CONTRACT_D column');
+            }
+            
+            const stocks_data = {};
             const tickers_info = {
                 'BHARTIARTL': {'name': 'Bharti Airtel', 'sector': 'Telecom'},
                 'JIOFIN': {'name': 'Jio Finance', 'sector': 'Finance'},
@@ -904,66 +708,73 @@
                 stocks_data[ticker] = {'expiries': {}, 'spot': 0};
             }
             
+            // Parse rows
+            let rowCount = 0;
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
                 
-                const row = {};
                 const values = lines[i].split(',');
-                headers.forEach((header, idx) => {
-                    row[header.trim()] = values[idx] ? values[idx].trim() : '';
-                });
+                const contract = values[contractIdx] ? values[contractIdx].trim() : '';
                 
-                const contract = row['CONTRACT_D'] || '';
                 if (!contract.startsWith('OPTSTK')) continue;
                 
                 const cleanContract = contract.substring(6);
                 let found = false;
                 
-                for (let i = 0; i < cleanContract.length && !found; i++) {
-                    if (cleanContract[i] === '-' && cleanContract[i+5] === '-') {
-                        const ticker = cleanContract.substring(0, i);
-                        const rest = cleanContract.substring(i);
-                        const dateEnd = rest.indexOf('-', 1) + 3;
-                        const date = rest.substring(0, dateEnd);
-                        const optStrike = rest.substring(dateEnd);
-                        
-                        if (!(ticker in tickers_info)) continue;
-                        
-                        let optType = '', strikeStr = '';
-                        if (optStrike.includes('CE')) {
-                            optType = 'CE';
-                            strikeStr = optStrike.replace('CE', '').trim();
-                        } else if (optStrike.includes('PE')) {
-                            optType = 'PE';
-                            strikeStr = optStrike.replace('PE', '').trim();
-                        } else {
-                            continue;
-                        }
-                        
-                        try {
-                            const strike = parseFloat(strikeStr);
-                            const ltp = parseFloat(row['CLOSE_PRIC']) || 0;
-                            const oi = parseInt(parseFloat(row['OI_NO_CON'])) || 0;
-                            const volume = parseInt(parseFloat(row['TRADED_QUA'])) || 0;
-                            const spot = parseFloat(row['UNDRLNG_ST']) || 0;
-                            
-                            if (!(date in stocks_data[ticker]['expiries'])) {
-                                stocks_data[ticker]['expiries'][date] = [];
+                // Find date position (format: DD-MMM-YYYY)
+                for (let j = 0; j < cleanContract.length && !found; j++) {
+                    if (cleanContract[j] === '-' && j > 0) {
+                        // Check if it's a date
+                        const potential = cleanContract.substring(Math.max(0, j-2), Math.min(cleanContract.length, j+9));
+                        if (potential.includes('-')) {
+                            const dateMatch = potential.match(/(\d{1,2})-(\w+)-(\d{4})/);
+                            if (dateMatch) {
+                                const ticker = cleanContract.substring(0, j-2).trim();
+                                const dateStr = dateMatch[0];
+                                const afterDate = cleanContract.substring(j-2 + dateStr.length);
+                                
+                                if (!(ticker in tickers_info)) continue;
+                                
+                                let optType = '', strikeStr = '';
+                                if (afterDate.includes('CE')) {
+                                    optType = 'CE';
+                                    strikeStr = afterDate.replace('CE', '').trim();
+                                } else if (afterDate.includes('PE')) {
+                                    optType = 'PE';
+                                    strikeStr = afterDate.replace('PE', '').trim();
+                                } else {
+                                    continue;
+                                }
+                                
+                                try {
+                                    const strike = parseFloat(strikeStr);
+                                    const ltp = parseFloat(values[priceIdx]) || 0;
+                                    const oi = parseInt(parseFloat(values[oiIdx])) || 0;
+                                    const volume = parseInt(parseFloat(values[volIdx])) || 0;
+                                    const spot = parseFloat(values[spotIdx]) || 0;
+                                    
+                                    if (isNaN(strike)) continue;
+                                    
+                                    if (!(dateStr in stocks_data[ticker]['expiries'])) {
+                                        stocks_data[ticker]['expiries'][dateStr] = [];
+                                    }
+                                    
+                                    stocks_data[ticker]['expiries'][dateStr].push({
+                                        'strike': strike,
+                                        'option_type': optType,
+                                        'ltp': ltp,
+                                        'oi': oi,
+                                        'volume': volume,
+                                        'spot': spot
+                                    });
+                                    
+                                    stocks_data[ticker]['spot'] = spot;
+                                    rowCount++;
+                                    found = true;
+                                } catch (e) {
+                                    continue;
+                                }
                             }
-                            
-                            stocks_data[ticker]['expiries'][date].push({
-                                'strike': strike,
-                                'option_type': optType,
-                                'ltp': ltp,
-                                'oi': oi,
-                                'volume': volume,
-                                'spot': spot
-                            });
-                            
-                            stocks_data[ticker]['spot'] = spot;
-                            found = true;
-                        } catch (e) {
-                            continue;
                         }
                     }
                 }
@@ -976,6 +787,7 @@
                 }
             }
             
+            console.log('✅ Parsed', rowCount, 'contracts');
             return stocks_data;
         }
         
@@ -1012,7 +824,7 @@
             const sector = document.getElementById('newSector').value;
             
             if (!ticker || !name || !sector) {
-                alert('Please fill all fields');
+                showMessage('❌ Please fill all fields', 'error');
                 return;
             }
             
@@ -1021,6 +833,7 @@
             document.getElementById('newTicker').value = '';
             document.getElementById('newName').value = '';
             document.getElementById('newSector').value = '';
+            showMessage('✅ Scrip added', 'success');
         }
         
         function removeScrip(ticker) {
@@ -1030,6 +843,7 @@
                     currentStock = Object.keys(stocksConfig)[0];
                 }
                 renderConfigList();
+                showMessage('✅ Scrip removed', 'success');
             }
         }
         
@@ -1038,7 +852,7 @@
             renderStocks();
             closeConfig();
             update();
-            alert('✅ Configuration saved!');
+            showMessage('✅ Configuration saved!', 'success');
         }
     </script>
 </body>
