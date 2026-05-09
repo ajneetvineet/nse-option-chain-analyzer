@@ -1,0 +1,44 @@
+{
+  "scrips": {
+    "BHARTIARTL": {
+      "name": "Bharti Airtel Limited",
+      "sector": "Telecom",
+      "symbol": "BHARTIARTL.NS",
+      "enabled": true
+    },
+    "JIOFIN": {
+      "name": "Jio Financial Services Limited",
+      "sector": "Finance",
+      "symbol": "JIOFIN.NS",
+      "enabled": true
+    },
+    "SBIN": {
+      "name": "State Bank of India",
+      "sector": "Banking",
+      "symbol": "SBIN.NS",
+      "enabled": true
+    },
+    "TATASTEEL": {
+      "name": "Tata Steel Limited (TMPV)",
+      "sector": "Metals",
+      "symbol": "TATASTEEL.NS",
+      "enabled": true
+    }
+  },
+  "settings": {
+    "autoRefresh": false,
+    "refreshInterval": 60000,
+    "theme": "dark",
+    "showNews": true,
+    "newsCount": 3,
+    "dataSource": "NSE EOD",
+    "dataDate": "07-MAY-2026"
+  },
+  "news_sources": [
+    "NSE",
+    "BSE",
+    "Reuters",
+    "Bloomberg",
+    "Economic Times"
+  ]
+}

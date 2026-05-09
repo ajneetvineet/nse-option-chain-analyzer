@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NSE Option Chain Analyzer | TMPV Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>NSE Option Chain | TMPV Mobile First</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         :root {
@@ -12,7 +12,6 @@
             --s2: #161b22;
             --s3: #21262d;
             --border: #30363d;
-            --border2: #444c56;
             --txt: #e6edf3;
             --txt2: #8b949e;
             --txt3: #6e7681;
@@ -20,8 +19,6 @@
             --c2: #3fb850;
             --c3: #f85149;
             --c4: #d29922;
-            --c5: #a371f7;
-            --atm: #ffd700;
         }
         
         * {
@@ -30,259 +27,289 @@
             box-sizing: border-box;
         }
         
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
             background: var(--bg);
             color: var(--txt);
-            font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            line-height: 1.6;
-            overflow-x: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.5;
         }
         
-        body::before {
-            content: '';
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 8px;
+            padding-top: max(8px, env(safe-area-inset-top));
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+        
+        h1 {
+            font-size: 1.3rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header-subtitle {
+            font-size: 0.7rem;
+            color: var(--txt3);
+            width: 100%;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, var(--c1), var(--c2));
+            border: none;
+            color: #000;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+        }
+        
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+        
+        .refresh-btn.loading svg {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .config-btn {
+            background: var(--s2);
+            border: 1px solid var(--border);
+            color: var(--c1);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+        
+        .config-btn:hover {
+            border-color: var(--c1);
+            background: rgba(88, 166, 255, 0.1);
+        }
+        
+        /* MODAL */
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
-                repeating-linear-gradient(
-                    0deg,
-                    rgba(88, 166, 255, 0.03) 0px,
-                    rgba(88, 166, 255, 0.03) 1px,
-                    transparent 1px,
-                    transparent 2px
-                );
-            pointer-events: none;
-            z-index: 9999;
-            animation: scanlines 8s linear infinite;
-        }
-        
-        @keyframes scanlines {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(10px); }
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        header {
-            margin-bottom: 2.5rem;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 1.5rem;
-        }
-        
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, var(--c1), var(--c5));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .header-subtitle {
-            font-size: 0.85rem;
-            color: var(--txt3);
-            margin-top: 0.5rem;
-            font-family: 'IBM Plex Mono', monospace;
-            letter-spacing: 0.5px;
-        }
-        
-        .share-link-box {
-            background: var(--s2);
-            border: 1px solid var(--border);
-            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
             padding: 1rem;
-            max-width: 300px;
+            overflow-y: auto;
         }
         
-        .share-link-label {
-            font-size: 0.7rem;
-            color: var(--txt3);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.5rem;
-            display: block;
-            font-weight: 600;
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
-        .link-input {
-            width: 100%;
+        .modal-content {
             background: var(--s1);
             border: 1px solid var(--border);
-            color: var(--c1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--txt2);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .config-group {
+            margin-bottom: 1rem;
+        }
+        
+        .config-label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--txt2);
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .config-input {
+            width: 100%;
+            background: var(--s2);
+            border: 1px solid var(--border);
+            color: var(--txt);
             padding: 0.5rem;
             border-radius: 4px;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.65rem;
-            word-break: break-all;
-            cursor: pointer;
-            transition: all 0.2s;
+            font-size: 0.75rem;
             margin-bottom: 0.5rem;
         }
         
-        .link-input:hover {
+        .config-input:focus {
+            outline: none;
             border-color: var(--c1);
-            background: rgba(88, 166, 255, 0.05);
+            box-shadow: 0 0 8px rgba(88, 166, 255, 0.2);
         }
         
-        .btn-small {
-            background: linear-gradient(135deg, var(--c1), var(--c5));
+        .add-btn, .save-config-btn {
+            background: var(--c1);
             border: none;
             color: #000;
-            padding: 0.4rem 0.8rem;
+            padding: 0.5rem 1rem;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.7rem;
             font-weight: 600;
-            transition: all 0.2s;
-            width: 100%;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
         }
         
-        .btn-small:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(88, 166, 255, 0.3);
+        .remove-btn {
+            background: var(--c3);
+            border: none;
+            color: #fff;
+            padding: 0.3rem 0.6rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            margin-top: 0.25rem;
         }
         
-        /* STOCK SELECTOR */
-        .stocks-grid {
+        .stock-cards-container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
         }
         
-        @media (max-width: 768px) {
-            .stocks-grid {
-                grid-template-columns: repeat(2, 1fr);
+        @media (min-width: 480px) {
+            .stock-cards-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .stock-cards-container {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1rem;
+            }
+            .container {
+                padding: 1.5rem;
             }
         }
         
         .stock-btn {
-            position: relative;
             background: var(--s2);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1.25rem;
+            border-radius: 8px;
+            padding: 1rem;
             cursor: pointer;
             transition: all 0.2s;
             text-align: left;
         }
         
-        .stock-btn:hover {
+        .stock-btn:active {
             border-color: var(--c1);
-            background: rgba(88, 166, 255, 0.07);
-            box-shadow: 0 0 20px rgba(88, 166, 255, 0.1), inset 0 0 20px rgba(88, 166, 255, 0.03);
+            background: rgba(88, 166, 255, 0.1);
         }
         
         .stock-btn.active {
             border-color: var(--c1);
-            background: rgba(88, 166, 255, 0.07);
-            box-shadow: 0 0 20px rgba(88, 166, 255, 0.1), inset 0 0 20px rgba(88, 166, 255, 0.03);
-        }
-        
-        .stock-btn.active::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--c1), var(--c5));
-            border-radius: 10px 10px 0 0;
+            background: rgba(88, 166, 255, 0.1);
         }
         
         .sb-ticker {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 600;
             color: var(--c1);
             letter-spacing: 1px;
         }
         
         .sb-name {
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             color: var(--txt2);
             margin-top: 3px;
         }
         
-        .sb-sector {
-            font-size: 0.6rem;
-            color: var(--txt3);
-            margin-top: 2px;
-        }
-        
-        .sb-spot {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 0.75rem;
-            font-size: 0.7rem;
-        }
-        
         .sb-price {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
             color: var(--txt);
+            margin-top: 0.5rem;
         }
         
-        .sb-label {
-            color: var(--txt3);
-            text-transform: uppercase;
-            font-size: 0.6rem;
-            letter-spacing: 1px;
-        }
-        
-        /* EXPIRY TABS */
         .expiry-bar {
             display: flex;
             gap: 0.5rem;
-            margin-bottom: 1.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .expiry-label {
-            font-size: 0.65rem;
-            color: var(--txt3);
-            font-family: 'IBM Plex Mono', monospace;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-right: 0.25rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+            -webkit-overflow-scrolling: touch;
         }
         
         .exp-btn {
             background: var(--s2);
             border: 1px solid var(--border);
             border-radius: 6px;
-            padding: 0.35rem 0.9rem;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.7rem;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.65rem;
             color: var(--txt2);
             cursor: pointer;
             transition: all 0.15s;
-        }
-        
-        .exp-btn:hover {
-            border-color: var(--border2);
-            color: var(--txt);
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .exp-btn.active {
@@ -291,239 +318,102 @@
             color: var(--c1);
         }
         
-        /* LAYOUT */
         .layout {
-            display: grid;
-            grid-template-columns: 1fr 360px;
-            gap: 1.5rem;
-        }
-        
-        @media (max-width: 1100px) {
-            .layout {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        /* OPTION CHAIN TABLE */
-        .chain-wrap {
-            background: var(--s1);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
-        .chain-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.875rem 1.25rem;
-            border-bottom: 1px solid var(--border);
-            background: var(--s2);
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-        
-        .ch-title {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: var(--txt);
-            letter-spacing: 0.5px;
-        }
-        
-        .pcr-badge {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.68rem;
-            padding: 0.25rem 0.65rem;
-            border-radius: 5px;
-        }
-        
-        .pcr-badge.bull {
-            background: rgba(63, 185, 80, 0.12);
-            border: 1px solid rgba(63, 185, 80, 0.3);
-            color: var(--c2);
-        }
-        
-        .pcr-badge.bear {
-            background: rgba(248, 81, 73, 0.12);
-            border: 1px solid rgba(248, 81, 73, 0.3);
-            color: var(--c3);
-        }
-        
-        .pcr-badge.neutral {
-            background: rgba(210, 153, 34, 0.12);
-            border: 1px solid rgba(210, 153, 34, 0.3);
-            color: var(--c4);
-        }
-        
-        .chain-table-wrap {
-            overflow-x: auto;
-        }
-        
-        table.chain {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.74rem;
-        }
-        
-        table.chain thead tr {
-            background: var(--s3);
-        }
-        
-        table.chain th {
-            padding: 0.55rem 0.75rem;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.6rem;
-            color: var(--txt2);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            white-space: nowrap;
-            font-weight: 500;
-        }
-        
-        table.chain th.ce-col {
-            color: var(--c2);
-            text-align: right;
-        }
-        
-        table.chain th.pe-col {
-            color: var(--c3);
-        }
-        
-        table.chain th.strike-col {
-            text-align: center;
-            color: var(--atm);
-        }
-        
-        table.chain td {
-            padding: 0.55rem 0.75rem;
-            border-bottom: 1px solid rgba(33, 38, 45, 0.6);
-            white-space: nowrap;
-            vertical-align: middle;
-        }
-        
-        table.chain tr:last-child td {
-            border-bottom: none;
-        }
-        
-        table.chain tr.atm-row td {
-            background: rgba(255, 215, 0, 0.04);
-        }
-        
-        table.chain tr.atm-row .strike-cell {
-            background: rgba(255, 215, 0, 0.1);
-            color: var(--atm);
-            font-weight: 700;
-        }
-        
-        table.chain tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-        
-        .ce-side {
-            text-align: right;
-        }
-        
-        .pe-side {
-            text-align: left;
-        }
-        
-        .strike-cell {
-            text-align: center;
-            font-weight: 600;
-            color: var(--atm);
-        }
-        
-        .signal-cell {
-            font-size: 0.65rem;
-            font-weight: 600;
-            padding: 0.35rem 0.5rem;
-            border-radius: 3px;
-            text-align: center;
-        }
-        
-        .signal-buy-ce {
-            background: rgba(63, 185, 80, 0.15);
-            color: var(--c2);
-        }
-        
-        .signal-sell-ce {
-            background: rgba(248, 81, 73, 0.15);
-            color: var(--c3);
-        }
-        
-        .signal-buy-pe {
-            background: rgba(63, 185, 80, 0.15);
-            color: var(--c2);
-        }
-        
-        .signal-sell-pe {
-            background: rgba(248, 81, 73, 0.15);
-            color: var(--c3);
-        }
-        
-        .ltp {
-            font-family: 'IBM Plex Mono', monospace;
-            color: var(--txt);
-        }
-        
-        .price-up {
-            color: var(--c2);
-        }
-        
-        .price-down {
-            color: var(--c3);
-        }
-        
-        .oi-bar {
-            display: inline-block;
-            height: 4px;
-            background: linear-gradient(90deg, var(--c1), var(--c5));
-            border-radius: 2px;
-            min-width: 2px;
-            margin-right: 4px;
-        }
-        
-        .res-label {
-            color: var(--c3);
-            font-weight: 700;
-        }
-        
-        .sup-label {
-            color: var(--c2);
-            font-weight: 700;
-        }
-        
-        /* SIDEBAR */
-        .sidebar {
             display: flex;
             flex-direction: column;
             gap: 1rem;
         }
         
+        @media (min-width: 900px) {
+            .layout {
+                display: grid;
+                grid-template-columns: 1fr 350px;
+                gap: 1.5rem;
+            }
+        }
+        
+        .chain-wrap {
+            background: var(--s1);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .chain-header {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--s2);
+            font-size: 0.7rem;
+        }
+        
+        .chain-table-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+        
+        table.chain {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.65rem;
+        }
+        
+        table.chain th {
+            padding: 0.4rem 0.5rem;
+            background: var(--s3);
+            text-align: center;
+            color: var(--txt2);
+            font-weight: 600;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        table.chain td {
+            padding: 0.4rem 0.5rem;
+            border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        table.chain tr.atm-row td {
+            background: rgba(255, 215, 0, 0.05);
+        }
+        
+        .strike-cell {
+            font-weight: 600;
+            color: #ffd700;
+        }
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
         .panel {
             background: var(--s1);
             border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 1rem;
+            border-radius: 8px;
+            padding: 0.75rem;
         }
         
         .panel-title {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 600;
             color: var(--txt2);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.75rem;
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 0.5rem;
             padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
         }
         
         .analysis-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 0.75rem;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
+            margin-bottom: 0.5rem;
         }
         
         .analysis-label {
@@ -531,161 +421,131 @@
         }
         
         .analysis-value {
-            font-family: 'IBM Plex Mono', monospace;
             font-weight: 600;
             color: var(--c1);
         }
         
         .sentiment-bar {
             width: 100%;
-            height: 6px;
+            height: 4px;
             background: var(--s2);
-            border-radius: 3px;
+            border-radius: 2px;
             overflow: hidden;
             margin: 0.5rem 0;
-            border: 1px solid var(--border);
         }
         
         .sentiment-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--c3), var(--c4), var(--c2));
-            border-radius: 3px;
         }
         
-        .signal-box {
+        .news-item {
             background: var(--s2);
             border-left: 3px solid var(--c1);
-            padding: 0.75rem;
-            border-radius: 6px;
-            margin-top: 0.75rem;
-            font-size: 0.75rem;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.65rem;
         }
         
-        .signal-verdict {
-            font-weight: 700;
+        .news-title {
+            font-weight: 600;
             color: var(--c1);
-            margin-bottom: 0.35rem;
+            margin-bottom: 0.25rem;
         }
         
-        .signal-description {
-            color: var(--txt2);
-            font-size: 0.7rem;
+        .news-meta {
+            font-size: 0.6rem;
+            color: var(--txt3);
         }
         
         .chart-container {
             position: relative;
-            height: 300px;
-            margin-top: 1rem;
+            height: 250px;
+            margin-top: 0.5rem;
         }
         
-        .strategy-item {
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
             background: var(--s2);
-            border-left: 2px solid var(--c1);
-            padding: 0.75rem;
-            margin-bottom: 0.75rem;
-            border-radius: 6px;
-            font-size: 0.7rem;
         }
         
-        .strategy-name {
-            font-weight: 600;
-            color: var(--c1);
-            margin-bottom: 0.35rem;
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
         }
         
-        .strategy-detail {
-            color: var(--txt2);
-            margin-bottom: 0.25rem;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 0.65rem;
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--txt2);
         }
         
-        .disclaimer {
-            background: rgba(210, 153, 34, 0.1);
-            border: 1px solid rgba(210, 153, 34, 0.3);
-            border-radius: 8px;
-            padding: 1rem;
-            margin-top: 2rem;
-            font-size: 0.7rem;
-            color: var(--txt2);
-            line-height: 1.5;
+        input, button, select {
+            font-size: 16px;
         }
         
-        .disclaimer-title {
-            color: var(--c4);
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            h1 {
-                font-size: 1.3rem;
-            }
-            
-            .header-top {
-                flex-direction: column;
-            }
-            
-            .share-link-box {
-                max-width: 100%;
-            }
-            
-            .stocks-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .layout {
-                grid-template-columns: 1fr;
-            }
-            
-            table.chain {
-                font-size: 0.65rem;
-            }
-            
-            table.chain th, table.chain td {
-                padding: 0.4rem 0.5rem;
-            }
+        button {
+            min-height: 44px;
+            min-width: 44px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="header-top">
-                <div>
-                    <h1>📊 NSE Option Chain Analyzer</h1>
-                    <div class="header-subtitle">TMPV Edition | Real-time F&O Analysis | 07-MAY-2026</div>
-                </div>
-                <div class="share-link-box">
-                    <label class="share-link-label">📱 Mobile Link</label>
-                    <div class="link-input" id="shareLink" title="Click to copy">Loading...</div>
-                    <button class="btn-small" onclick="copyLink()">Copy Link</button>
-                </div>
+            <div>
+                <h1>📊 NSE Options</h1>
+                <div class="header-subtitle">Real-time F&O Analysis | TMPV v1.2.0</div>
+            </div>
+            <div class="header-controls">
+                <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 4v6h6M23 20v-6h-6M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+                    </svg>
+                    Refresh
+                </button>
+                <button class="config-btn" onclick="openConfig()">⚙️ Config</button>
             </div>
         </header>
         
-        <!-- Stock Selector -->
-        <div class="stocks-grid" id="stockGrid"></div>
-        
-        <!-- Main Content -->
-        <div class="layout">
-            <div>
-                <!-- Expiry Selector -->
-                <div class="expiry-bar">
-                    <span class="expiry-label">Expiry:</span>
-                    <div id="expiryTabs"></div>
+        <!-- CONFIG MODAL -->
+        <div class="modal" id="configModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-title">Configure Scrips</div>
+                    <button class="close-btn" onclick="closeConfig()">&times;</button>
                 </div>
                 
-                <!-- Option Chain Table -->
+                <div id="configList"></div>
+                
+                <div class="config-group">
+                    <label class="config-label">Add New Scrip</label>
+                    <input type="text" id="newTicker" class="config-input" placeholder="e.g., INFY">
+                    <input type="text" id="newName" class="config-input" placeholder="Company Name">
+                    <input type="text" id="newSector" class="config-input" placeholder="Sector">
+                    <button class="add-btn" onclick="addNewScrip()">+ Add Scrip</button>
+                </div>
+                
+                <button class="save-config-btn" onclick="saveConfig()" style="width: 100%; margin-top: 1rem;">Save Configuration</button>
+            </div>
+        </div>
+        
+        <div class="stock-cards-container" id="stockGrid"></div>
+        
+        <div class="layout">
+            <div>
+                <div class="expiry-bar" id="expiryTabs"></div>
                 <div class="chain-wrap">
-                    <div class="chain-header">
-                        <div class="ch-title">OPTION CHAIN</div>
-                        <div id="pcrBadge"></div>
-                    </div>
+                    <div class="chain-header">Option Chain</div>
                     <div class="chain-table-wrap">
                         <table class="chain" id="chainTable">
                             <thead></thead>
@@ -695,97 +555,81 @@
                 </div>
             </div>
             
-            <!-- Sidebar -->
             <div class="sidebar">
-                <!-- Market Analysis -->
                 <div class="panel">
-                    <div class="panel-title">Market Analysis</div>
+                    <div class="panel-title">Analysis</div>
                     <div class="analysis-row">
-                        <span class="analysis-label">PCR (OI)</span>
+                        <span class="analysis-label">PCR</span>
                         <span class="analysis-value" id="pcrValue">—</span>
                     </div>
                     <div class="analysis-row">
-                        <span class="analysis-label">ATM Straddle</span>
-                        <span class="analysis-value" id="atmStraddle">—</span>
-                    </div>
-                    <div class="analysis-row">
-                        <span class="analysis-label">Spot Price</span>
+                        <span class="analysis-label">Spot</span>
                         <span class="analysis-value" id="spotPrice">—</span>
-                    </div>
-                    <div class="analysis-row">
-                        <span class="analysis-label">Sentiment</span>
                     </div>
                     <div class="sentiment-bar">
                         <div class="sentiment-fill" id="sentimentFill"></div>
                     </div>
-                    <div class="signal-box">
-                        <div class="signal-verdict" id="signalVerdict">Analyzing...</div>
-                        <div class="signal-description" id="signalDesc">Please select a stock</div>
+                    <div class="analysis-row" style="margin-top: 0.5rem;">
+                        <span class="analysis-value" id="signalVerdict">Analyzing...</span>
                     </div>
                 </div>
                 
-                <!-- OI Chart -->
                 <div class="panel">
-                    <div class="panel-title">OI Distribution (±6 ATM)</div>
+                    <div class="panel-title">📰 Market News</div>
+                    <div id="newsList"></div>
+                </div>
+                
+                <div class="panel">
+                    <div class="panel-title">OI Chart</div>
                     <div class="chart-container">
                         <canvas id="oiChart"></canvas>
                     </div>
                 </div>
-                
-                <!-- Strategy Guide -->
-                <div class="panel">
-                    <div class="panel-title">Recommended Strategies</div>
-                    <div id="strategies"></div>
-                </div>
             </div>
-        </div>
-        
-        <!-- Disclaimer -->
-        <div class="disclaimer">
-            <div class="disclaimer-title">⚠️ Disclaimer</div>
-            <p>This tool provides educational analysis based on EOD NSE derivatives data dated 07-MAY-2026. It is NOT financial advice. Trading options involves significant risk. Consult a qualified financial advisor before making investment decisions. Past performance does not guarantee future results.</p>
         </div>
     </div>
     
     <script>
-        // Data Embedded
-        const stocksData = {"BHARTIARTL": {"expiries": {"30-JUN-2026": [{"strike": 1520.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 1.1}, {"strike": 1520.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 329.15}, {"strike": 1560.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 2.3}, {"strike": 1560.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 290.7}, {"strike": 1600.0, "option_type": "PE", "ltp": 0, "oi": 14, "volume": 0, "spot": 1826.6, "prev_close": 4.4}, {"strike": 1600.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 253.2}, {"strike": 1620.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 234.95}, {"strike": 1620.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 5.95}, {"strike": 1640.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 217.1}, {"strike": 1640.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 7.9}, {"strike": 1660.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 199.7}, {"strike": 1660.0, "option_type": "PE", "ltp": 8.3, "oi": 23, "volume": 11875, "spot": 1826.6, "prev_close": 10.35}, {"strike": 1680.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 13.3}, {"strike": 1680.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 182.85}, {"strike": 1700.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 166.65}, {"strike": 1700.0, "option_type": "PE", "ltp": 13.35, "oi": 81, "volume": 23750, "spot": 1826.6, "prev_close": 11.9}, {"strike": 1720.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 21.2}, {"strike": 1720.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 151.1}, {"strike": 1740.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6, "prev_close": 26.25}, {"strike": 1740.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 136.35}, {"strike": 1760.0, "option_type": "PE", "ltp": 27.7, "oi": 6, "volume": 2375, "spot": 1826.6, "prev_close": 31.95}, {"strike": 1760.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 122.25}, {"strike": 1780.0, "option_type": "CE", "ltp": 0, "oi": 9, "volume": 0, "spot": 1826.6, "prev_close": 109.1}, {"strike": 1780.0, "option_type": "PE", "ltp": 31.8, "oi": 57, "volume": 3800, "spot": 1826.6, "prev_close": 28.5}, {"strike": 1800.0, "option_type": "PE", "ltp": 39.15, "oi": 71, "volume": 11875, "spot": 1826.6, "prev_close": 34.1}, {"strike": 1800.0, "option_type": "CE", "ltp": 84.0, "oi": 17, "volume": 2375, "spot": 1826.6, "prev_close": 90.1}, {"strike": 1820.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 54.55}, {"strike": 1820.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 85.45}, {"strike": 1840.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6, "prev_close": 63.9}, {"strike": 1840.0, "option_type": "CE", "ltp": 64.2, "oi": 69, "volume": 37050, "spot": 1826.6, "prev_close": 70.25}, {"strike": 1860.0, "option_type": "CE", "ltp": 49.8, "oi": 106, "volume": 56525, "spot": 1826.6, "prev_close": 65.35}, {"strike": 1860.0, "option_type": "PE", "ltp": 0, "oi": 6, "volume": 0, "spot": 1826.6, "prev_close": 74.1}, {"strike": 1880.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6, "prev_close": 56.65}, {"strike": 1880.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6, "prev_close": 85.2}, {"strike": 1900.0, "option_type": "PE", "ltp": 93.0, "oi": 30, "volume": 1900, "spot": 1826.6, "prev_close": 97.2}, {"strike": 1900.0, "option_type": "CE", "ltp": 39.15, "oi": 254, "volume": 56525, "spot": 1826.6, "prev_close": 42.8}, {"strike": 1920.0, "option_type": "CE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6, "prev_close": 41.85}, {"strike": 1920.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 110.0}, {"strike": 1940.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 123.6}, {"strike": 1940.0, "option_type": "CE", "ltp": 27.15, "oi": 21, "volume": 10925, "spot": 1826.6, "prev_close": 35.6}, {"strike": 1960.0, "option_type": "CE", "ltp": 0, "oi": 11, "volume": 0, "spot": 1826.6, "prev_close": 30.15}, {"strike": 1960.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 137.95}, {"strike": 1980.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6, "prev_close": 25.5}, {"strike": 1980.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 153.1}, {"strike": 2000.0, "option_type": "PE", "ltp": 0, "oi": 12, "volume": 0, "spot": 1826.6, "prev_close": 168.7}, {"strike": 2000.0, "option_type": "CE", "ltp": 15.2, "oi": 191, "volume": 23750, "spot": 1826.6, "prev_close": 17.2}, {"strike": 2020.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6, "prev_close": 17.7}, {"strike": 2020.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 184.95}, {"strike": 2040.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 201.7}, {"strike": 2040.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 14.65}, {"strike": 2060.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 218.9}, {"strike": 2060.0, "option_type": "CE", "ltp": 0, "oi": 13, "volume": 0, "spot": 1826.6, "prev_close": 12.05}, {"strike": 2080.0, "option_type": "CE", "ltp": 7.0, "oi": 5, "volume": 950, "spot": 1826.6, "prev_close": 8.0}, {"strike": 2080.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 236.5}, {"strike": 2120.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 272.75}, {"strike": 2120.0, "option_type": "CE", "ltp": 0, "oi": 10, "volume": 0, "spot": 1826.6, "prev_close": 4.75}, {"strike": 2160.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 310.1}, {"strike": 2160.0, "option_type": "CE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6, "prev_close": 4.15}], "28-JUL-2026": [{"strike": 1600.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 9.25}, {"strike": 1600.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 265.7}, {"strike": 1640.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 14.4}, {"strike": 1640.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 231.4}, {"strike": 1680.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 21.5}, {"strike": 1680.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 199.05}, {"strike": 1720.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 30.95}, {"strike": 1720.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 169.05}, {"strike": 1760.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 42.85}, {"strike": 1760.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 141.55}, {"strike": 1800.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 116.9}, {"strike": 1800.0, "option_type": "PE", "ltp": 0, "oi": 2, "volume": 0, "spot": 1826.6, "prev_close": 57.65}, {"strike": 1840.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 95.15}, {"strike": 1840.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 75.35}, {"strike": 1880.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 95.95}, {"strike": 1880.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6, "prev_close": 76.35}, {"strike": 1920.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 60.35}, {"strike": 1920.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 119.4}, {"strike": 1960.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 145.5}, {"strike": 1960.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 47.05}, {"strike": 2000.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 174.1}, {"strike": 2000.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 36.2}, {"strike": 2040.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 27.4}, {"strike": 2040.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 204.7}, {"strike": 2080.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 237.25}, {"strike": 2080.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 20.45}, {"strike": 2160.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 306.6}, {"strike": 2160.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 10.95}], "26-MAY-2026": [{"strike": 1520.0, "option_type": "PE", "ltp": 0.5, "oi": 37, "volume": 475, "spot": 1826.6, "prev_close": 0.65}, {"strike": 1520.0, "option_type": "CE", "ltp": 313.95, "oi": 25, "volume": 1900, "spot": 1826.6, "prev_close": 318.6}, {"strike": 1560.0, "option_type": "CE", "ltp": 274.7, "oi": 0, "volume": 1900, "spot": 1826.6, "prev_close": 278.8}, {"strike": 1560.0, "option_type": "PE", "ltp": 0, "oi": 148, "volume": 0, "spot": 1826.6, "prev_close": 0.85}, {"strike": 1600.0, "option_type": "CE", "ltp": 0, "oi": 35, "volume": 0, "spot": 1826.6, "prev_close": 239.1}, {"strike": 1600.0, "option_type": "PE", "ltp": 0.95, "oi": 185, "volume": 2850, "spot": 1826.6, "prev_close": 0.9}, {"strike": 1620.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6, "prev_close": 219.4}, {"strike": 1620.0, "option_type": "PE", "ltp": 0, "oi": 23, "volume": 0, "spot": 1826.6, "prev_close": 1.05}, {"strike": 1640.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6, "prev_close": 199.85}, {"strike": 1640.0, "option_type": "PE", "ltp": 1.25, "oi": 352, "volume": 589950, "spot": 1826.6, "prev_close": 1.2}, {"strike": 1660.0, "option_type": "CE", "ltp": 176.0, "oi": 4, "volume": 1900, "spot": 1826.6, "prev_close": 180.5}, {"strike": 1660.0, "option_type": "PE", "ltp": 1.75, "oi": 143, "volume": 28975, "spot": 1826.6, "prev_close": 1.7}, {"strike": 1680.0, "option_type": "PE", "ltp": 2.5, "oi": 182, "volume": 39900, "spot": 1826.6, "prev_close": 2.2}, {"strike": 1680.0, "option_type": "CE", "ltp": 172.6, "oi": 28, "volume": 1900, "spot": 1826.6, "prev_close": 161.55}, {"strike": 1700.0, "option_type": "PE", "ltp": 3.7, "oi": 587, "volume": 169575, "spot": 1826.6, "prev_close": 3.25}, {"strike": 1700.0, "option_type": "CE", "ltp": 138.5, "oi": 175, "volume": 1900, "spot": 1826.6, "prev_close": 146.35}, {"strike": 1720.0, "option_type": "CE", "ltp": 119.7, "oi": 109, "volume": 8550, "spot": 1826.6, "prev_close": 127.35}, {"strike": 1720.0, "option_type": "PE", "ltp": 5.4, "oi": 535, "volume": 403275, "spot": 1826.6, "prev_close": 4.6}, {"strike": 1740.0, "option_type": "PE", "ltp": 8.05, "oi": 1099, "volume": 606575, "spot": 1826.6, "prev_close": 6.35}, {"strike": 1740.0, "option_type": "CE", "ltp": 101.9, "oi": 65, "volume": 32300, "spot": 1826.6, "prev_close": 108.3}, {"strike": 1760.0, "option_type": "CE", "ltp": 86.3, "oi": 165, "volume": 33725, "spot": 1826.6, "prev_close": 92.35}, {"strike": 1760.0, "option_type": "PE", "ltp": 11.6, "oi": 711, "volume": 627000, "spot": 1826.6, "prev_close": 9.2}, {"strike": 1780.0, "option_type": "PE", "ltp": 16.25, "oi": 852, "volume": 706325, "spot": 1826.6, "prev_close": 12.9}, {"strike": 1780.0, "option_type": "CE", "ltp": 69.75, "oi": 292, "volume": 102125, "spot": 1826.6, "prev_close": 78.0}, {"strike": 1800.0, "option_type": "PE", "ltp": 22.3, "oi": 1448, "volume": 1124800, "spot": 1826.6, "prev_close": 18.45}, {"strike": 1800.0, "option_type": "CE", "ltp": 56.6, "oi": 1436, "volume": 546250, "spot": 1826.6, "prev_close": 64.6}, {"strike": 1820.0, "option_type": "CE", "ltp": 44.4, "oi": 3628, "volume": 2148425, "spot": 1826.6, "prev_close": 51.65}, {"strike": 1820.0, "option_type": "PE", "ltp": 29.8, "oi": 1538, "volume": 1060200, "spot": 1826.6, "prev_close": 24.6}, {"strike": 1840.0, "option_type": "CE", "ltp": 34.65, "oi": 2845, "volume": 2927900, "spot": 1826.6, "prev_close": 40.2}, {"strike": 1840.0, "option_type": "PE", "ltp": 40.45, "oi": 2051, "volume": 1283450, "spot": 1826.6, "prev_close": 33.55}, {"strike": 1860.0, "option_type": "PE", "ltp": 51.45, "oi": 1457, "volume": 418000, "spot": 1826.6, "prev_close": 43.9}, {"strike": 1860.0, "option_type": "CE", "ltp": 26.4, "oi": 3162, "volume": 1742300, "spot": 1826.6, "prev_close": 30.7}, {"strike": 1880.0, "option_type": "PE", "ltp": 64.85, "oi": 766, "volume": 149150, "spot": 1826.6, "prev_close": 54.95}, {"strike": 1880.0, "option_type": "CE", "ltp": 19.6, "oi": 1828, "volume": 1308150, "spot": 1826.6, "prev_close": 23.3}, {"strike": 1900.0, "option_type": "CE", "ltp": 14.3, "oi": 5420, "volume": 2360275, "spot": 1826.6, "prev_close": 17.0}, {"strike": 1900.0, "option_type": "PE", "ltp": 78.3, "oi": 1087, "volume": 50825, "spot": 1826.6, "prev_close": 70.55}, {"strike": 1920.0, "option_type": "PE", "ltp": 0, "oi": 369, "volume": 0, "spot": 1826.6, "prev_close": 94.3}, {"strike": 1920.0, "option_type": "CE", "ltp": 10.35, "oi": 1583, "volume": 1059725, "spot": 1826.6, "prev_close": 12.45}, {"strike": 1940.0, "option_type": "CE", "ltp": 7.35, "oi": 1580, "volume": 741475, "spot": 1826.6, "prev_close": 8.95}, {"strike": 1940.0, "option_type": "PE", "ltp": 114.8, "oi": 210, "volume": 475, "spot": 1826.6, "prev_close": 110.4}, {"strike": 1960.0, "option_type": "CE", "ltp": 5.35, "oi": 1214, "volume": 691600, "spot": 1826.6, "prev_close": 6.45}, {"strike": 1960.0, "option_type": "PE", "ltp": 0, "oi": 195, "volume": 0, "spot": 1826.6, "prev_close": 127.35}, {"strike": 1980.0, "option_type": "CE", "ltp": 3.9, "oi": 461, "volume": 149150, "spot": 1826.6, "prev_close": 4.6}, {"strike": 1980.0, "option_type": "PE", "ltp": 0, "oi": 229, "volume": 0, "spot": 1826.6, "prev_close": 145.1}, {"strike": 2000.0, "option_type": "PE", "ltp": 167.6, "oi": 474, "volume": 3325, "spot": 1826.6, "prev_close": 163.4}, {"strike": 2000.0, "option_type": "CE", "ltp": 2.95, "oi": 3035, "volume": 470725, "spot": 1826.6, "prev_close": 3.5}, {"strike": 2020.0, "option_type": "PE", "ltp": 0, "oi": 6, "volume": 0, "spot": 1826.6, "prev_close": 182.2}, {"strike": 2020.0, "option_type": "CE", "ltp": 2.15, "oi": 651, "volume": 71725, "spot": 1826.6, "prev_close": 2.65}, {"strike": 2040.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6, "prev_close": 201.3}, {"strike": 2040.0, "option_type": "CE", "ltp": 1.8, "oi": 251, "volume": 93575, "spot": 1826.6, "prev_close": 2.05}, {"strike": 2060.0, "option_type": "CE", "ltp": 1.55, "oi": 934, "volume": 49400, "spot": 1826.6, "prev_close": 1.7}, {"strike": 2060.0, "option_type": "PE", "ltp": 0, "oi": 121, "volume": 0, "spot": 1826.6, "prev_close": 220.7}, {"strike": 2080.0, "option_type": "CE", "ltp": 1.25, "oi": 322, "volume": 236550, "spot": 1826.6, "prev_close": 1.35}, {"strike": 2080.0, "option_type": "PE", "ltp": 0, "oi": 67, "volume": 0, "spot": 1826.6, "prev_close": 240.25}, {"strike": 2120.0, "option_type": "CE", "ltp": 1.0, "oi": 398, "volume": 21850, "spot": 1826.6, "prev_close": 1.0}, {"strike": 2120.0, "option_type": "PE", "ltp": 0, "oi": 523, "volume": 0, "spot": 1826.6, "prev_close": 279.75}, {"strike": 2160.0, "option_type": "CE", "ltp": 0.75, "oi": 260, "volume": 3325, "spot": 1826.6, "prev_close": 0.8}, {"strike": 2160.0, "option_type": "PE", "ltp": 0, "oi": 76, "volume": 0, "spot": 1826.6, "prev_close": 319.45}, {"strike": 2240.0, "option_type": "CE", "ltp": 0.55, "oi": 96, "volume": 2375, "spot": 1826.6, "prev_close": 0.55}]}, "spot": 1826.6}, "JIOFIN": {"expiries": {"26-MAY-2026": [{"strike": 195.0, "option_type": "PE", "ltp": 0, "oi": 17, "volume": 0, "spot": 251.02, "prev_close": 0.05}, {"strike": 200.0, "option_type": "CE", "ltp": 0, "oi": 39, "volume": 0, "spot": 251.02, "prev_close": 53.1}, {"strike": 200.0, "option_type": "PE", "ltp": 0.26, "oi": 252, "volume": 77550, "spot": 251.02, "prev_close": 0.3}, {"strike": 205.0, "option_type": "PE", "ltp": 0.34, "oi": 29, "volume": 4700, "spot": 251.02, "prev_close": 0.05}, {"strike": 210.0, "option_type": "CE", "ltp": 0, "oi": 14, "volume": 0, "spot": 251.02, "prev_close": 43.25}, {"strike": 210.0, "option_type": "PE", "ltp": 0.37, "oi": 467, "volume": 63450, "spot": 251.02, "prev_close": 0.4}, {"strike": 212.5, "option_type": "PE", "ltp": 0, "oi": 38, "volume": 0, "spot": 251.02, "prev_close": 0.2}, {"strike": 212.5, "option_type": "CE", "ltp": 0, "oi": 28, "volume": 0, "spot": 251.02, "prev_close": 40.8}, {"strike": 215.0, "option_type": "PE", "ltp": 0.49, "oi": 124, "volume": 51700, "spot": 251.02, "prev_close": 0.5}, {"strike": 215.0, "option_type": "CE", "ltp": 0, "oi": 20, "volume": 0, "spot": 251.02, "prev_close": 38.4}, {"strike": 220.0, "option_type": "CE", "ltp": 33.0, "oi": 60, "volume": 4700, "spot": 251.02, "prev_close": 34.85}, {"strike": 220.0, "option_type": "PE", "ltp": 0.67, "oi": 574, "volume": 806050, "spot": 251.02, "prev_close": 0.65}, {"strike": 222.5, "option_type": "PE", "ltp": 0.8, "oi": 23, "volume": 9400, "spot": 251.02, "prev_close": 0.8}, {"strike": 225.0, "option_type": "CE", "ltp": 28.64, "oi": 65, "volume": 32900, "spot": 251.02, "prev_close": 29.0}, {"strike": 225.0, "option_type": "PE", "ltp": 0.97, "oi": 365, "volume": 674450, "spot": 251.02, "prev_close": 0.9}, {"strike": 227.5, "option_type": "PE", "ltp": 1.05, "oi": 116, "volume": 37600, "spot": 251.02, "prev_close": 1.1}, {"strike": 227.5, "option_type": "CE", "ltp": 0, "oi": 41, "volume": 0, "spot": 251.02, "prev_close": 26.75}, {"strike": 230.0, "option_type": "PE", "ltp": 1.42, "oi": 1175, "volume": 806050, "spot": 251.02, "prev_close": 1.3}, {"strike": 230.0, "option_type": "CE", "ltp": 23.31, "oi": 279, "volume": 143350, "spot": 251.02, "prev_close": 25.6}, {"strike": 232.5, "option_type": "PE", "ltp": 0, "oi": 54, "volume": 0, "spot": 251.02, "prev_close": 1.55}, {"strike": 232.5, "option_type": "CE", "ltp": 21.1, "oi": 51, "volume": 25850, "spot": 251.02, "prev_close": 23.0}, {"strike": 235.0, "option_type": "PE", "ltp": 2.11, "oi": 1002, "volume": 587500, "spot": 251.02, "prev_close": 1.95}, {"strike": 235.0, "option_type": "CE", "ltp": 19.08, "oi": 339, "volume": 63450, "spot": 251.02, "prev_close": 21.05}, {"strike": 237.5, "option_type": "PE", "ltp": 2.62, "oi": 304, "volume": 256150, "spot": 251.02, "prev_close": 2.35}, {"strike": 237.5, "option_type": "CE", "ltp": 0, "oi": 42, "volume": 0, "spot": 251.02, "prev_close": 19.15}, {"strike": 240.0, "option_type": "CE", "ltp": 15.09, "oi": 1239, "volume": 561650, "spot": 251.02, "prev_close": 17.1}, {"strike": 240.0, "option_type": "PE", "ltp": 3.18, "oi": 1611, "volume": 3139600, "spot": 251.02, "prev_close": 2.85}, {"strike": 242.5, "option_type": "CE", "ltp": 13.39, "oi": 134, "volume": 21150, "spot": 251.02, "prev_close": 14.9}, {"strike": 242.5, "option_type": "PE", "ltp": 3.77, "oi": 347, "volume": 218550, "spot": 251.02, "prev_close": 3.4}, {"strike": 245.0, "option_type": "CE", "ltp": 11.57, "oi": 551, "volume": 467650, "spot": 251.02, "prev_close": 13.3}, {"strike": 245.0, "option_type": "PE", "ltp": 4.69, "oi": 775, "volume": 1536900, "spot": 251.02, "prev_close": 4.15}, {"strike": 247.5, "option_type": "CE", "ltp": 10.1, "oi": 524, "volume": 220900, "spot": 251.02, "prev_close": 11.65}, {"strike": 247.5, "option_type": "PE", "ltp": 5.64, "oi": 416, "volume": 639200, "spot": 251.02, "prev_close": 4.95}, {"strike": 250.0, "option_type": "CE", "ltp": 8.74, "oi": 4562, "volume": 6481300, "spot": 251.02, "prev_close": 10.25}, {"strike": 250.0, "option_type": "PE", "ltp": 6.8, "oi": 2497, "volume": 3301750, "spot": 251.02, "prev_close": 6.05}, {"strike": 252.5, "option_type": "CE", "ltp": 7.53, "oi": 906, "volume": 3642500, "spot": 251.02, "prev_close": 8.9}, {"strike": 252.5, "option_type": "PE", "ltp": 8.05, "oi": 898, "volume": 2119700, "spot": 251.02, "prev_close": 7.1}, {"strike": 255.0, "option_type": "CE", "ltp": 6.43, "oi": 2552, "volume": 8152150, "spot": 251.02, "prev_close": 7.65}, {"strike": 255.0, "option_type": "PE", "ltp": 9.53, "oi": 1294, "volume": 2895200, "spot": 251.02, "prev_close": 8.25}, {"strike": 257.5, "option_type": "PE", "ltp": 10.97, "oi": 310, "volume": 300800, "spot": 251.02, "prev_close": 9.75}, {"strike": 257.5, "option_type": "CE", "ltp": 5.52, "oi": 378, "volume": 822500, "spot": 251.02, "prev_close": 6.6}, {"strike": 260.0, "option_type": "CE", "ltp": 4.65, "oi": 5046, "volume": 11014450, "spot": 251.02, "prev_close": 5.65}, {"strike": 260.0, "option_type": "PE", "ltp": 12.79, "oi": 1346, "volume": 336050, "spot": 251.02, "prev_close": 11.25}, {"strike": 262.5, "option_type": "PE", "ltp": 0, "oi": 62, "volume": 0, "spot": 251.02, "prev_close": 14.25}, {"strike": 262.5, "option_type": "CE", "ltp": 3.93, "oi": 208, "volume": 465300, "spot": 251.02, "prev_close": 4.75}, {"strike": 265.0, "option_type": "CE", "ltp": 3.33, "oi": 877, "volume": 1861200, "spot": 251.02, "prev_close": 4.05}, {"strike": 265.0, "option_type": "PE", "ltp": 0, "oi": 145, "volume": 0, "spot": 251.02, "prev_close": 16.0}, {"strike": 267.5, "option_type": "PE", "ltp": 17.58, "oi": 3, "volume": 4700, "spot": 251.02, "prev_close": 17.8}, {"strike": 267.5, "option_type": "CE", "ltp": 2.87, "oi": 111, "volume": 180950, "spot": 251.02, "prev_close": 3.4}, {"strike": 270.0, "option_type": "PE", "ltp": 20.19, "oi": 533, "volume": 91650, "spot": 251.02, "prev_close": 18.5}, {"strike": 270.0, "option_type": "CE", "ltp": 2.37, "oi": 2547, "volume": 3893950, "spot": 251.02, "prev_close": 2.9}, {"strike": 272.5, "option_type": "PE", "ltp": 0, "oi": 5, "volume": 0, "spot": 251.02, "prev_close": 21.7}, {"strike": 272.5, "option_type": "CE", "ltp": 2.01, "oi": 170, "volume": 446500, "spot": 251.02, "prev_close": 2.45}, {"strike": 275.0, "option_type": "PE", "ltp": 24.5, "oi": 75, "volume": 2350, "spot": 251.02, "prev_close": 23.75}, {"strike": 275.0, "option_type": "CE", "ltp": 1.69, "oi": 975, "volume": 968200, "spot": 251.02, "prev_close": 2.05}, {"strike": 277.5, "option_type": "CE", "ltp": 1.46, "oi": 123, "volume": 190350, "spot": 251.02, "prev_close": 1.75}, {"strike": 280.0, "option_type": "CE", "ltp": 1.23, "oi": 1839, "volume": 1877650, "spot": 251.02, "prev_close": 1.5}, {"strike": 280.0, "option_type": "PE", "ltp": 29.4, "oi": 460, "volume": 47000, "spot": 251.02, "prev_close": 27.05}, {"strike": 282.5, "option_type": "PE", "ltp": 0, "oi": 9, "volume": 0, "spot": 251.02, "prev_close": 30.3}, {"strike": 282.5, "option_type": "CE", "ltp": 1.05, "oi": 114, "volume": 143350, "spot": 251.02, "prev_close": 1.3}, {"strike": 285.0, "option_type": "PE", "ltp": 32.9, "oi": 67, "volume": 65800, "spot": 251.02, "prev_close": 32.6}, {"strike": 285.0, "option_type": "CE", "ltp": 0.91, "oi": 361, "volume": 690900, "spot": 251.02, "prev_close": 1.1}, {"strike": 290.0, "option_type": "PE", "ltp": 38.3, "oi": 424, "volume": 9400, "spot": 251.02, "prev_close": 36.25}, {"strike": 290.0, "option_type": "CE", "ltp": 0.69, "oi": 914, "volume": 545200, "spot": 251.02, "prev_close": 0.85}, {"strike": 300.0, "option_type": "CE", "ltp": 0.42, "oi": 2367, "volume": 958800, "spot": 251.02, "prev_close": 0.55}, {"strike": 300.0, "option_type": "PE", "ltp": 48.01, "oi": 1345, "volume": 129250, "spot": 251.02, "prev_close": 45.9}, {"strike": 310.0, "option_type": "CE", "ltp": 0.28, "oi": 285, "volume": 84600, "spot": 251.02, "prev_close": 0.35}], "30-JUN-2026": [{"strike": 210.0, "option_type": "PE", "ltp": 0, "oi": 7, "volume": 0, "spot": 251.02, "prev_close": 1.35}, {"strike": 210.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 45.8}, {"strike": 215.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 41.4}, {"strike": 215.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 1.95}, {"strike": 220.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02, "prev_close": 37.2}, {"strike": 220.0, "option_type": "PE", "ltp": 2.14, "oi": 52, "volume": 35250, "spot": 251.02, "prev_close": 2.1}, {"strike": 225.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 33.2}, {"strike": 225.0, "option_type": "PE", "ltp": 2.85, "oi": 2, "volume": 2350, "spot": 251.02, "prev_close": 3.65}, {"strike": 227.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 31.3}, {"strike": 227.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 4.2}, {"strike": 230.0, "option_type": "PE", "ltp": 3.87, "oi": 77, "volume": 70500, "spot": 251.02, "prev_close": 3.55}, {"strike": 230.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 29.45}, {"strike": 232.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 5.5}, {"strike": 232.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 27.65}, {"strike": 235.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02, "prev_close": 25.9}, {"strike": 235.0, "option_type": "PE", "ltp": 4.7, "oi": 11, "volume": 25850, "spot": 251.02, "prev_close": 6.2}, {"strike": 237.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 24.2}, {"strike": 237.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 7.0}, {"strike": 240.0, "option_type": "CE", "ltp": 0, "oi": 2, "volume": 0, "spot": 251.02, "prev_close": 22.6}, {"strike": 240.0, "option_type": "PE", "ltp": 6.6, "oi": 44, "volume": 63450, "spot": 251.02, "prev_close": 5.8}, {"strike": 242.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 21.05}, {"strike": 242.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 8.85}, {"strike": 245.0, "option_type": "CE", "ltp": 0, "oi": 2, "volume": 0, "spot": 251.02, "prev_close": 19.6}, {"strike": 245.0, "option_type": "PE", "ltp": 8.5, "oi": 8, "volume": 2350, "spot": 251.02, "prev_close": 7.8}, {"strike": 247.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 10.9}, {"strike": 247.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 18.2}, {"strike": 250.0, "option_type": "PE", "ltp": 10.74, "oi": 70, "volume": 65800, "spot": 251.02, "prev_close": 9.8}, {"strike": 250.0, "option_type": "CE", "ltp": 14.19, "oi": 209, "volume": 108100, "spot": 251.02, "prev_close": 15.55}, {"strike": 252.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 13.25}, {"strike": 252.5, "option_type": "CE", "ltp": 0, "oi": 3, "volume": 0, "spot": 251.02, "prev_close": 15.6}, {"strike": 255.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 14.4}, {"strike": 255.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02, "prev_close": 14.55}, {"strike": 257.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 15.9}, {"strike": 257.5, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02, "prev_close": 13.25}, {"strike": 260.0, "option_type": "PE", "ltp": 15.5, "oi": 43, "volume": 9400, "spot": 251.02, "prev_close": 17.3}, {"strike": 260.0, "option_type": "CE", "ltp": 9.9, "oi": 281, "volume": 119850, "spot": 251.02, "prev_close": 10.9}, {"strike": 262.5, "option_type": "CE", "ltp": 10.8, "oi": 7, "volume": 11750, "spot": 251.02, "prev_close": 11.2}, {"strike": 262.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 18.8}, {"strike": 265.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02, "prev_close": 20.3}, {"strike": 265.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 10.25}, {"strike": 267.5, "option_type": "PE", "ltp": 20.0, "oi": 2, "volume": 4700, "spot": 251.02, "prev_close": 21.9}, {"strike": 267.5, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02, "prev_close": 9.4}, {"strike": 270.0, "option_type": "CE", "ltp": 6.66, "oi": 133, "volume": 61100, "spot": 251.02, "prev_close": 7.35}, {"strike": 270.0, "option_type": "PE", "ltp": 22.97, "oi": 44, "volume": 18800, "spot": 251.02, "prev_close": 23.6}, {"strike": 272.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 7.8}, {"strike": 272.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 25.3}, {"strike": 275.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 27.05}, {"strike": 275.0, "option_type": "CE", "ltp": 5.13, "oi": 18, "volume": 11750, "spot": 251.02, "prev_close": 7.1}, {"strike": 280.0, "option_type": "CE", "ltp": 4.12, "oi": 86, "volume": 94000, "spot": 251.02, "prev_close": 4.85}, {"strike": 280.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 30.8}, {"strike": 285.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 34.65}, {"strike": 285.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 4.8}, {"strike": 290.0, "option_type": "PE", "ltp": 0, "oi": 6, "volume": 0, "spot": 251.02, "prev_close": 38.7}, {"strike": 290.0, "option_type": "CE", "ltp": 2.68, "oi": 116, "volume": 47000, "spot": 251.02, "prev_close": 3.1}], "28-JUL-2026": [{"strike": 210.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 251.02, "prev_close": 2.65}, {"strike": 210.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 48.05}, {"strike": 220.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 40.0}, {"strike": 220.0, "option_type": "PE", "ltp": 3.05, "oi": 1, "volume": 4700, "spot": 251.02, "prev_close": 4.45}, {"strike": 225.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 5.65}, {"strike": 225.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 36.3}, {"strike": 230.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 32.75}, {"strike": 230.0, "option_type": "PE", "ltp": 4.73, "oi": 13, "volume": 25850, "spot": 251.02, "prev_close": 7.0}, {"strike": 235.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 8.6}, {"strike": 235.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 29.4}, {"strike": 240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 10.4}, {"strike": 240.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 26.25}, {"strike": 245.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 23.35}, {"strike": 245.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 12.45}, {"strike": 250.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 20.7}, {"strike": 250.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 14.7}, {"strike": 255.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 18.25}, {"strike": 255.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 17.2}, {"strike": 260.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 19.9}, {"strike": 260.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 16.0}, {"strike": 265.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 14.0}, {"strike": 265.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 22.8}, {"strike": 270.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 25.9}, {"strike": 270.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 12.2}, {"strike": 275.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 10.55}, {"strike": 275.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 29.2}, {"strike": 280.0, "option_type": "CE", "ltp": 0, "oi": 2, "volume": 0, "spot": 251.02, "prev_close": 9.1}, {"strike": 280.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 32.7}, {"strike": 290.0, "option_type": "CE", "ltp": 5.81, "oi": 42, "volume": 49350, "spot": 251.02, "prev_close": 6.7}, {"strike": 290.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02, "prev_close": 40.15}]}, "spot": 251.02}, "SBIN": {"expiries": {"26-MAY-2026": [{"strike": 860.0, "option_type": "PE", "ltp": 0.25, "oi": 137, "volume": 3000, "spot": 1092.0, "prev_close": 0.35}, {"strike": 880.0, "option_type": "PE", "ltp": 0.4, "oi": 146, "volume": 48750, "spot": 1092.0, "prev_close": 0.05}, {"strike": 900.0, "option_type": "CE", "ltp": 0, "oi": 143, "volume": 0, "spot": 1092.0, "prev_close": 198.95}, {"strike": 900.0, "option_type": "PE", "ltp": 0.55, "oi": 847, "volume": 405000, "spot": 1092.0, "prev_close": 0.6}, {"strike": 910.0, "option_type": "PE", "ltp": 0.5, "oi": 104, "volume": 161250, "spot": 1092.0, "prev_close": 0.55}, {"strike": 920.0, "option_type": "PE", "ltp": 0.65, "oi": 528, "volume": 271500, "spot": 1092.0, "prev_close": 0.7}, {"strike": 920.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 179.1}, {"strike": 930.0, "option_type": "PE", "ltp": 0.8, "oi": 396, "volume": 234750, "spot": 1092.0, "prev_close": 0.95}, {"strike": 930.0, "option_type": "CE", "ltp": 0, "oi": 19, "volume": 0, "spot": 1092.0, "prev_close": 169.15}, {"strike": 940.0, "option_type": "CE", "ltp": 0, "oi": 20, "volume": 0, "spot": 1092.0, "prev_close": 159.3}, {"strike": 940.0, "option_type": "PE", "ltp": 1.05, "oi": 358, "volume": 286500, "spot": 1092.0, "prev_close": 1.25}, {"strike": 950.0, "option_type": "PE", "ltp": 1.35, "oi": 1013, "volume": 333000, "spot": 1092.0, "prev_close": 1.55}, {"strike": 950.0, "option_type": "CE", "ltp": 136.0, "oi": 253, "volume": 2250, "spot": 1092.0, "prev_close": 143.45}, {"strike": 960.0, "option_type": "PE", "ltp": 1.85, "oi": 229, "volume": 282750, "spot": 1092.0, "prev_close": 1.95}, {"strike": 960.0, "option_type": "CE", "ltp": 0, "oi": 26, "volume": 0, "spot": 1092.0, "prev_close": 139.75}, {"strike": 970.0, "option_type": "CE", "ltp": 0, "oi": 52, "volume": 0, "spot": 1092.0, "prev_close": 130.05}, {"strike": 970.0, "option_type": "PE", "ltp": 2.35, "oi": 504, "volume": 486000, "spot": 1092.0, "prev_close": 2.5}, {"strike": 980.0, "option_type": "PE", "ltp": 3.2, "oi": 879, "volume": 702000, "spot": 1092.0, "prev_close": 3.2}, {"strike": 980.0, "option_type": "CE", "ltp": 108.35, "oi": 355, "volume": 14250, "spot": 1092.0, "prev_close": 112.7}, {"strike": 990.0, "option_type": "PE", "ltp": 4.1, "oi": 804, "volume": 843750, "spot": 1092.0, "prev_close": 3.95}, {"strike": 990.0, "option_type": "CE", "ltp": 0, "oi": 7, "volume": 0, "spot": 1092.0, "prev_close": 111.15}, {"strike": 1000.0, "option_type": "CE", "ltp": 90.0, "oi": 477, "volume": 171000, "spot": 1092.0, "prev_close": 93.85}, {"strike": 1000.0, "option_type": "PE", "ltp": 5.4, "oi": 4008, "volume": 1939500, "spot": 1092.0, "prev_close": 5.15}, {"strike": 1010.0, "option_type": "CE", "ltp": 82.05, "oi": 121, "volume": 20250, "spot": 1092.0, "prev_close": 87.65}, {"strike": 1010.0, "option_type": "PE", "ltp": 6.85, "oi": 572, "volume": 864000, "spot": 1092.0, "prev_close": 6.55}, {"strike": 1020.0, "option_type": "CE", "ltp": 74.0, "oi": 127, "volume": 33750, "spot": 1092.0, "prev_close": 78.45}, {"strike": 1020.0, "option_type": "PE", "ltp": 8.6, "oi": 876, "volume": 1448250, "spot": 1092.0, "prev_close": 8.1}, {"strike": 1030.0, "option_type": "PE", "ltp": 10.85, "oi": 918, "volume": 2076000, "spot": 1092.0, "prev_close": 10.15}, {"strike": 1030.0, "option_type": "CE", "ltp": 66.0, "oi": 391, "volume": 69750, "spot": 1092.0, "prev_close": 70.8}, {"strike": 1040.0, "option_type": "PE", "ltp": 13.5, "oi": 1249, "volume": 2472750, "spot": 1092.0, "prev_close": 12.45}, {"strike": 1040.0, "option_type": "CE", "ltp": 58.55, "oi": 324, "volume": 189000, "spot": 1092.0, "prev_close": 62.85}, {"strike": 1050.0, "option_type": "PE", "ltp": 16.65, "oi": 2367, "volume": 3521250, "spot": 1092.0, "prev_close": 15.1}, {"strike": 1050.0, "option_type": "CE", "ltp": 51.9, "oi": 1768, "volume": 1236750, "spot": 1092.0, "prev_close": 55.1}, {"strike": 1060.0, "option_type": "CE", "ltp": 45.45, "oi": 1447, "volume": 847500, "spot": 1092.0, "prev_close": 48.0}, {"strike": 1060.0, "option_type": "PE", "ltp": 20.25, "oi": 1510, "volume": 2654250, "spot": 1092.0, "prev_close": 18.4}, {"strike": 1070.0, "option_type": "CE", "ltp": 39.5, "oi": 1770, "volume": 1394250, "spot": 1092.0, "prev_close": 41.8}, {"strike": 1070.0, "option_type": "PE", "ltp": 24.4, "oi": 1829, "volume": 2787750, "spot": 1092.0, "prev_close": 22.15}, {"strike": 1080.0, "option_type": "PE", "ltp": 29.1, "oi": 2128, "volume": 2994000, "spot": 1092.0, "prev_close": 26.45}, {"strike": 1080.0, "option_type": "CE", "ltp": 34.4, "oi": 2907, "volume": 2755500, "spot": 1092.0, "prev_close": 36.1}, {"strike": 1090.0, "option_type": "CE", "ltp": 29.5, "oi": 2123, "volume": 5586750, "spot": 1092.0, "prev_close": 31.0}, {"strike": 1090.0, "option_type": "PE", "ltp": 34.25, "oi": 1636, "volume": 3182250, "spot": 1092.0, "prev_close": 31.2}, {"strike": 1100.0, "option_type": "PE", "ltp": 40.0, "oi": 5244, "volume": 3338250, "spot": 1092.0, "prev_close": 36.4}, {"strike": 1100.0, "option_type": "CE", "ltp": 25.3, "oi": 8544, "volume": 14583750, "spot": 1092.0, "prev_close": 26.65}, {"strike": 1110.0, "option_type": "PE", "ltp": 45.75, "oi": 880, "volume": 665250, "spot": 1092.0, "prev_close": 41.6}, {"strike": 1110.0, "option_type": "CE", "ltp": 21.35, "oi": 2788, "volume": 4192500, "spot": 1092.0, "prev_close": 22.65}, {"strike": 1120.0, "option_type": "CE", "ltp": 18.0, "oi": 3473, "volume": 5445750, "spot": 1092.0, "prev_close": 18.9}, {"strike": 1120.0, "option_type": "PE", "ltp": 52.45, "oi": 1228, "volume": 318750, "spot": 1092.0, "prev_close": 48.15}, {"strike": 1130.0, "option_type": "PE", "ltp": 59.45, "oi": 337, "volume": 125250, "spot": 1092.0, "prev_close": 55.15}, {"strike": 1130.0, "option_type": "CE", "ltp": 15.1, "oi": 1421, "volume": 2816250, "spot": 1092.0, "prev_close": 15.75}, {"strike": 1140.0, "option_type": "CE", "ltp": 12.6, "oi": 1734, "volume": 3469500, "spot": 1092.0, "prev_close": 13.15}, {"strike": 1140.0, "option_type": "PE", "ltp": 66.95, "oi": 248, "volume": 49500, "spot": 1092.0, "prev_close": 61.2}, {"strike": 1150.0, "option_type": "PE", "ltp": 74.8, "oi": 1956, "volume": 149250, "spot": 1092.0, "prev_close": 69.85}, {"strike": 1150.0, "option_type": "CE", "ltp": 10.5, "oi": 4365, "volume": 4298250, "spot": 1092.0, "prev_close": 11.0}, {"strike": 1160.0, "option_type": "CE", "ltp": 8.7, "oi": 1130, "volume": 1340250, "spot": 1092.0, "prev_close": 9.0}, {"strike": 1160.0, "option_type": "PE", "ltp": 82.9, "oi": 160, "volume": 18750, "spot": 1092.0, "prev_close": 76.65}, {"strike": 1170.0, "option_type": "CE", "ltp": 7.15, "oi": 854, "volume": 642000, "spot": 1092.0, "prev_close": 7.55}, {"strike": 1170.0, "option_type": "PE", "ltp": 91.3, "oi": 49, "volume": 10500, "spot": 1092.0, "prev_close": 87.1}, {"strike": 1180.0, "option_type": "CE", "ltp": 5.95, "oi": 1086, "volume": 839250, "spot": 1092.0, "prev_close": 6.2}, {"strike": 1180.0, "option_type": "PE", "ltp": 96.2, "oi": 469, "volume": 15000, "spot": 1092.0, "prev_close": 94.7}, {"strike": 1190.0, "option_type": "PE", "ltp": 100.45, "oi": 14, "volume": 6000, "spot": 1092.0, "prev_close": 94.95}, {"strike": 1190.0, "option_type": "CE", "ltp": 5.0, "oi": 553, "volume": 301500, "spot": 1092.0, "prev_close": 4.95}, {"strike": 1200.0, "option_type": "CE", "ltp": 4.15, "oi": 5913, "volume": 3147750, "spot": 1092.0, "prev_close": 4.25}, {"strike": 1200.0, "option_type": "PE", "ltp": 118.8, "oi": 1067, "volume": 48000, "spot": 1092.0, "prev_close": 111.35}, {"strike": 1210.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 0}, {"strike": 1210.0, "option_type": "CE", "ltp": 3.4, "oi": 332, "volume": 286500, "spot": 1092.0, "prev_close": 3.45}, {"strike": 1220.0, "option_type": "PE", "ltp": 0, "oi": 20, "volume": 0, "spot": 1092.0, "prev_close": 122.3}, {"strike": 1220.0, "option_type": "CE", "ltp": 2.85, "oi": 705, "volume": 408000, "spot": 1092.0, "prev_close": 2.75}, {"strike": 1240.0, "option_type": "PE", "ltp": 155.2, "oi": 24, "volume": 750, "spot": 1092.0, "prev_close": 141.3}, {"strike": 1240.0, "option_type": "CE", "ltp": 1.95, "oi": 1104, "volume": 783000, "spot": 1092.0, "prev_close": 2.0}, {"strike": 1260.0, "option_type": "PE", "ltp": 175.0, "oi": 75, "volume": 750, "spot": 1092.0, "prev_close": 160.65}, {"strike": 1260.0, "option_type": "CE", "ltp": 1.45, "oi": 709, "volume": 432750, "spot": 1092.0, "prev_close": 1.35}, {"strike": 1280.0, "option_type": "CE", "ltp": 1.05, "oi": 301, "volume": 115500, "spot": 1092.0, "prev_close": 1.0}, {"strike": 1280.0, "option_type": "PE", "ltp": 192.0, "oi": 63, "volume": 1500, "spot": 1092.0, "prev_close": 180.25}, {"strike": 1300.0, "option_type": "CE", "ltp": 0.85, "oi": 2352, "volume": 597000, "spot": 1092.0, "prev_close": 0.85}], "28-JUL-2026": [{"strike": 880.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 231.1}, {"strike": 880.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 2.65}, {"strike": 920.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 5.55}, {"strike": 920.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 194.65}, {"strike": 960.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 160.3}, {"strike": 960.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 10.65}, {"strike": 980.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 14.2}, {"strike": 980.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 144.15}, {"strike": 1000.0, "option_type": "PE", "ltp": 17.1, "oi": 13, "volume": 1500, "spot": 1092.0, "prev_close": 18.0}, {"strike": 1000.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 128.8}, {"strike": 1020.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 114.4}, {"strike": 1020.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0, "prev_close": 21.0}, {"strike": 1040.0, "option_type": "PE", "ltp": 0, "oi": 3, "volume": 0, "spot": 1092.0, "prev_close": 30.1}, {"strike": 1040.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 100.85}, {"strike": 1060.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 88.35}, {"strike": 1060.0, "option_type": "PE", "ltp": 0, "oi": 9, "volume": 0, "spot": 1092.0, "prev_close": 37.3}, {"strike": 1080.0, "option_type": "CE", "ltp": 0, "oi": 10, "volume": 0, "spot": 1092.0, "prev_close": 60.0}, {"strike": 1080.0, "option_type": "PE", "ltp": 0, "oi": 2, "volume": 0, "spot": 1092.0, "prev_close": 45.55}, {"strike": 1100.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 66.45}, {"strike": 1100.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 54.85}, {"strike": 1120.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 57.05}, {"strike": 1120.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 65.15}, {"strike": 1140.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 76.45}, {"strike": 1140.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 48.65}, {"strike": 1160.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 88.75}, {"strike": 1160.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 41.2}, {"strike": 1180.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 101.9}, {"strike": 1180.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 34.7}, {"strike": 1200.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 115.95}, {"strike": 1200.0, "option_type": "CE", "ltp": 19.5, "oi": 8, "volume": 1500, "spot": 1092.0, "prev_close": 29.0}, {"strike": 1240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 146.3}, {"strike": 1240.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 19.9}], "30-JUN-2026": [{"strike": 840.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0, "prev_close": 0.3}, {"strike": 900.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 206.0}, {"strike": 900.0, "option_type": "PE", "ltp": 2.0, "oi": 62, "volume": 4500, "spot": 1092.0, "prev_close": 2.7}, {"strike": 920.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 187.15}, {"strike": 920.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 2.5}, {"strike": 940.0, "option_type": "PE", "ltp": 4.9, "oi": 14, "volume": 7500, "spot": 1092.0, "prev_close": 3.85}, {"strike": 940.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 168.75}, {"strike": 950.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 159.75}, {"strike": 950.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 4.8}, {"strike": 960.0, "option_type": "PE", "ltp": 6.85, "oi": 81, "volume": 36750, "spot": 1092.0, "prev_close": 6.6}, {"strike": 960.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 150.9}, {"strike": 970.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 142.25}, {"strike": 970.0, "option_type": "PE", "ltp": 8.0, "oi": 2, "volume": 3000, "spot": 1092.0, "prev_close": 7.1}, {"strike": 980.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 133.75}, {"strike": 980.0, "option_type": "PE", "ltp": 8.7, "oi": 14, "volume": 2250, "spot": 1092.0, "prev_close": 8.5}, {"strike": 990.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0, "prev_close": 10.15}, {"strike": 990.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 125.5}, {"strike": 1000.0, "option_type": "CE", "ltp": 100.0, "oi": 10, "volume": 2250, "spot": 1092.0, "prev_close": 117.45}, {"strike": 1000.0, "option_type": "PE", "ltp": 13.0, "oi": 219, "volume": 238500, "spot": 1092.0, "prev_close": 12.45}, {"strike": 1010.0, "option_type": "PE", "ltp": 12.7, "oi": 3, "volume": 2250, "spot": 1092.0, "prev_close": 14.15}, {"strike": 1010.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0, "prev_close": 109.7}, {"strike": 1020.0, "option_type": "CE", "ltp": 0, "oi": 26, "volume": 0, "spot": 1092.0, "prev_close": 102.2}, {"strike": 1020.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0, "prev_close": 17.0}, {"strike": 1030.0, "option_type": "PE", "ltp": 19.7, "oi": 3, "volume": 1500, "spot": 1092.0, "prev_close": 19.2}, {"strike": 1030.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 94.95}, {"strike": 1040.0, "option_type": "PE", "ltp": 0, "oi": 19, "volume": 0, "spot": 1092.0, "prev_close": 22.1}, {"strike": 1040.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 87.9}, {"strike": 1050.0, "option_type": "CE", "ltp": 62.5, "oi": 43, "volume": 12000, "spot": 1092.0, "prev_close": 71.8}, {"strike": 1050.0, "option_type": "PE", "ltp": 26.65, "oi": 73, "volume": 36750, "spot": 1092.0, "prev_close": 24.45}, {"strike": 1060.0, "option_type": "PE", "ltp": 27.0, "oi": 10, "volume": 7500, "spot": 1092.0, "prev_close": 28.9}, {"strike": 1060.0, "option_type": "CE", "ltp": 60.7, "oi": 21, "volume": 6000, "spot": 1092.0, "prev_close": 61.05}, {"strike": 1070.0, "option_type": "CE", "ltp": 51.5, "oi": 9, "volume": 750, "spot": 1092.0, "prev_close": 51.5}, {"strike": 1070.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 32.75}, {"strike": 1080.0, "option_type": "CE", "ltp": 46.4, "oi": 57, "volume": 12750, "spot": 1092.0, "prev_close": 48.25}, {"strike": 1080.0, "option_type": "PE", "ltp": 38.0, "oi": 66, "volume": 10500, "spot": 1092.0, "prev_close": 35.0}, {"strike": 1090.0, "option_type": "PE", "ltp": 40.0, "oi": 1, "volume": 750, "spot": 1092.0, "prev_close": 41.45}, {"strike": 1090.0, "option_type": "CE", "ltp": 42.0, "oi": 1, "volume": 3000, "spot": 1092.0, "prev_close": 57.7}, {"strike": 1100.0, "option_type": "PE", "ltp": 49.4, "oi": 118, "volume": 53250, "spot": 1092.0, "prev_close": 45.6}, {"strike": 1100.0, "option_type": "CE", "ltp": 38.55, "oi": 353, "volume": 187500, "spot": 1092.0, "prev_close": 39.65}, {"strike": 1110.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 51.35}, {"strike": 1110.0, "option_type": "CE", "ltp": 0, "oi": 7, "volume": 0, "spot": 1092.0, "prev_close": 47.85}, {"strike": 1120.0, "option_type": "PE", "ltp": 59.55, "oi": 168, "volume": 1500, "spot": 1092.0, "prev_close": 56.95}, {"strike": 1120.0, "option_type": "CE", "ltp": 31.25, "oi": 34, "volume": 3000, "spot": 1092.0, "prev_close": 43.4}, {"strike": 1130.0, "option_type": "CE", "ltp": 24.5, "oi": 8, "volume": 1500, "spot": 1092.0, "prev_close": 28.2}, {"strike": 1130.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 62.55}, {"strike": 1140.0, "option_type": "CE", "ltp": 23.85, "oi": 67, "volume": 2250, "spot": 1092.0, "prev_close": 23.9}, {"strike": 1140.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 68.6}, {"strike": 1150.0, "option_type": "PE", "ltp": 80.8, "oi": 4, "volume": 5250, "spot": 1092.0, "prev_close": 74.95}, {"strike": 1150.0, "option_type": "CE", "ltp": 21.15, "oi": 47, "volume": 27000, "spot": 1092.0, "prev_close": 21.05}, {"strike": 1160.0, "option_type": "PE", "ltp": 84.45, "oi": 5, "volume": 1500, "spot": 1092.0, "prev_close": 81.6}, {"strike": 1160.0, "option_type": "CE", "ltp": 18.05, "oi": 35, "volume": 15000, "spot": 1092.0, "prev_close": 18.2}, {"strike": 1170.0, "option_type": "CE", "ltp": 16.85, "oi": 4, "volume": 2250, "spot": 1092.0, "prev_close": 12.5}, {"strike": 1170.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 88.45}, {"strike": 1180.0, "option_type": "CE", "ltp": 13.75, "oi": 17, "volume": 11250, "spot": 1092.0, "prev_close": 14.05}, {"strike": 1180.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 95.6}, {"strike": 1190.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 103.05}, {"strike": 1190.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0, "prev_close": 11.0}, {"strike": 1200.0, "option_type": "CE", "ltp": 10.7, "oi": 542, "volume": 166500, "spot": 1092.0, "prev_close": 10.65}, {"strike": 1200.0, "option_type": "PE", "ltp": 113.5, "oi": 17, "volume": 3000, "spot": 1092.0, "prev_close": 110.7}, {"strike": 1210.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 0}, {"strike": 1210.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 0}, {"strike": 1220.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 126.55}, {"strike": 1220.0, "option_type": "CE", "ltp": 0, "oi": 28, "volume": 0, "spot": 1092.0, "prev_close": 11.15}, {"strike": 1240.0, "option_type": "CE", "ltp": 5.75, "oi": 25, "volume": 10500, "spot": 1092.0, "prev_close": 5.85}, {"strike": 1240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 143.15}, {"strike": 1260.0, "option_type": "CE", "ltp": 5.0, "oi": 1, "volume": 750, "spot": 1092.0, "prev_close": 8.3}, {"strike": 1260.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0, "prev_close": 160.4}]}, "spot": 1092.0}, "TATASTEEL": {"expiries": {"26-MAY-2026": [{"strike": 162.0, "option_type": "CE", "ltp": 0, "oi": 56, "volume": 0, "spot": 217.09, "prev_close": 54.0}, {"strike": 170.0, "option_type": "PE", "ltp": 0.09, "oi": 341, "volume": 71500, "spot": 217.09, "prev_close": 0.1}, {"strike": 170.0, "option_type": "CE", "ltp": 0, "oi": 459, "volume": 0, "spot": 217.09, "prev_close": 46.05}, {"strike": 175.0, "option_type": "CE", "ltp": 0, "oi": 18, "volume": 0, "spot": 217.09, "prev_close": 41.1}, {"strike": 175.0, "option_type": "PE", "ltp": 0.13, "oi": 179, "volume": 242000, "spot": 217.09, "prev_close": 0.15}, {"strike": 180.0, "option_type": "PE", "ltp": 0.17, "oi": 982, "volume": 924000, "spot": 217.09, "prev_close": 0.2}, {"strike": 180.0, "option_type": "CE", "ltp": 37.63, "oi": 184, "volume": 8250, "spot": 217.09, "prev_close": 36.15}, {"strike": 182.5, "option_type": "PE", "ltp": 0, "oi": 3, "volume": 0, "spot": 217.09, "prev_close": 0.15}, {"strike": 182.5, "option_type": "CE", "ltp": 0, "oi": 3, "volume": 0, "spot": 217.09, "prev_close": 33.7}, {"strike": 185.0, "option_type": "PE", "ltp": 0.21, "oi": 347, "volume": 665500, "spot": 217.09, "prev_close": 0.3}, {"strike": 185.0, "option_type": "CE", "ltp": 0, "oi": 35, "volume": 0, "spot": 217.09, "prev_close": 31.25}, {"strike": 187.5, "option_type": "PE", "ltp": 0.25, "oi": 152, "volume": 85250, "spot": 217.09, "prev_close": 0.35}, {"strike": 187.5, "option_type": "CE", "ltp": 0, "oi": 26, "volume": 0, "spot": 217.09, "prev_close": 28.9}, {"strike": 190.0, "option_type": "CE", "ltp": 28.95, "oi": 442, "volume": 90750, "spot": 217.09, "prev_close": 26.55}, {"strike": 190.0, "option_type": "PE", "ltp": 0.3, "oi": 1480, "volume": 1278750, "spot": 217.09, "prev_close": 0.4}, {"strike": 192.5, "option_type": "PE", "ltp": 0.41, "oi": 150, "volume": 165000, "spot": 217.09, "prev_close": 0.5}, {"strike": 192.5, "option_type": "CE", "ltp": 0, "oi": 36, "volume": 0, "spot": 217.09, "prev_close": 24.2}, {"strike": 195.0, "option_type": "PE", "ltp": 0.52, "oi": 699, "volume": 2854500, "spot": 217.09, "prev_close": 0.65}, {"strike": 195.0, "option_type": "CE", "ltp": 0, "oi": 126, "volume": 0, "spot": 217.09, "prev_close": 22.0}, {"strike": 197.5, "option_type": "PE", "ltp": 0.67, "oi": 203, "volume": 220000, "spot": 217.09, "prev_close": 0.85}, {"strike": 197.5, "option_type": "CE", "ltp": 0, "oi": 34, "volume": 0, "spot": 217.09, "prev_close": 19.9}, {"strike": 200.0, "option_type": "CE", "ltp": 18.66, "oi": 1017, "volume": 396000, "spot": 217.09, "prev_close": 17.9}, {"strike": 200.0, "option_type": "PE", "ltp": 0.9, "oi": 3599, "volume": 5117750, "spot": 217.09, "prev_close": 1.1}, {"strike": 202.5, "option_type": "CE", "ltp": 16.55, "oi": 51, "volume": 104500, "spot": 217.09, "prev_close": 15.75}, {"strike": 202.5, "option_type": "PE", "ltp": 1.18, "oi": 459, "volume": 1325500, "spot": 217.09, "prev_close": 1.4}, {"strike": 205.0, "option_type": "CE", "ltp": 14.2, "oi": 218, "volume": 115500, "spot": 217.09, "prev_close": 13.45}, {"strike": 205.0, "option_type": "PE", "ltp": 1.58, "oi": 1484, "volume": 3572250, "spot": 217.09, "prev_close": 1.8}, {"strike": 207.5, "option_type": "PE", "ltp": 2.08, "oi": 853, "volume": 3305500, "spot": 217.09, "prev_close": 2.35}, {"strike": 207.5, "option_type": "CE", "ltp": 12.56, "oi": 261, "volume": 110000, "spot": 217.09, "prev_close": 11.35}, {"strike": 210.0, "option_type": "PE", "ltp": 2.71, "oi": 5179, "volume": 11217250, "spot": 217.09, "prev_close": 3.0}, {"strike": 210.0, "option_type": "CE", "ltp": 10.34, "oi": 6176, "volume": 3544750, "spot": 217.09, "prev_close": 9.6}, {"strike": 212.5, "option_type": "CE", "ltp": 8.75, "oi": 657, "volume": 1446500, "spot": 217.09, "prev_close": 8.05}, {"strike": 212.5, "option_type": "PE", "ltp": 3.57, "oi": 844, "volume": 3478750, "spot": 217.09, "prev_close": 3.9}, {"strike": 215.0, "option_type": "PE", "ltp": 4.57, "oi": 1744, "volume": 11269500, "spot": 217.09, "prev_close": 5.0}, {"strike": 215.0, "option_type": "CE", "ltp": 7.24, "oi": 3303, "volume": 10359250, "spot": 217.09, "prev_close": 6.65}, {"strike": 217.5, "option_type": "CE", "ltp": 5.95, "oi": 1486, "volume": 8516750, "spot": 217.09, "prev_close": 5.4}, {"strike": 217.5, "option_type": "PE", "ltp": 5.8, "oi": 717, "volume": 4268000, "spot": 217.09, "prev_close": 6.15}, {"strike": 220.0, "option_type": "PE", "ltp": 7.09, "oi": 1115, "volume": 4669500, "spot": 217.09, "prev_close": 7.6}, {"strike": 220.0, "option_type": "CE", "ltp": 4.8, "oi": 4722, "volume": 30621250, "spot": 217.09, "prev_close": 4.3}, {"strike": 222.5, "option_type": "PE", "ltp": 8.54, "oi": 163, "volume": 635250, "spot": 217.09, "prev_close": 10.8}, {"strike": 222.5, "option_type": "CE", "ltp": 3.81, "oi": 571, "volume": 3396250, "spot": 217.09, "prev_close": 3.35}, {"strike": 225.0, "option_type": "PE", "ltp": 10.29, "oi": 487, "volume": 536250, "spot": 217.09, "prev_close": 10.6}, {"strike": 225.0, "option_type": "CE", "ltp": 2.99, "oi": 1678, "volume": 9058500, "spot": 217.09, "prev_close": 2.6}, {"strike": 227.5, "option_type": "PE", "ltp": 12.11, "oi": 36, "volume": 110000, "spot": 217.09, "prev_close": 12.65}, {"strike": 227.5, "option_type": "CE", "ltp": 2.3, "oi": 381, "volume": 1916750, "spot": 217.09, "prev_close": 2.0}, {"strike": 230.0, "option_type": "PE", "ltp": 13.95, "oi": 232, "volume": 338250, "spot": 217.09, "prev_close": 14.6}, {"strike": 230.0, "option_type": "CE", "ltp": 1.72, "oi": 3437, "volume": 9176750, "spot": 217.09, "prev_close": 1.45}, {"strike": 232.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 18.2}, {"strike": 232.5, "option_type": "CE", "ltp": 1.29, "oi": 257, "volume": 921250, "spot": 217.09, "prev_close": 1.1}, {"strike": 235.0, "option_type": "CE", "ltp": 0.92, "oi": 2297, "volume": 3817000, "spot": 217.09, "prev_close": 0.8}, {"strike": 235.0, "option_type": "PE", "ltp": 18.16, "oi": 51, "volume": 85250, "spot": 217.09, "prev_close": 18.75}, {"strike": 240.0, "option_type": "PE", "ltp": 21.59, "oi": 173, "volume": 38500, "spot": 217.09, "prev_close": 23.35}, {"strike": 240.0, "option_type": "CE", "ltp": 0.48, "oi": 1915, "volume": 5280000, "spot": 217.09, "prev_close": 0.45}], "30-JUN-2026": [{"strike": 160.0, "option_type": "PE", "ltp": 0.41, "oi": 8, "volume": 2750, "spot": 217.09, "prev_close": 0.15}, {"strike": 185.0, "option_type": "PE", "ltp": 1.0, "oi": 50, "volume": 22000, "spot": 217.09, "prev_close": 1.15}, {"strike": 185.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 33.8}, {"strike": 190.0, "option_type": "PE", "ltp": 1.38, "oi": 151, "volume": 181500, "spot": 217.09, "prev_close": 1.7}, {"strike": 190.0, "option_type": "CE", "ltp": 0, "oi": 180, "volume": 0, "spot": 217.09, "prev_close": 29.65}, {"strike": 195.0, "option_type": "PE", "ltp": 2.0, "oi": 5, "volume": 5500, "spot": 217.09, "prev_close": 3.4}, {"strike": 195.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 217.09, "prev_close": 25.7}, {"strike": 197.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 23.85}, {"strike": 197.5, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 217.09, "prev_close": 4.0}, {"strike": 200.0, "option_type": "CE", "ltp": 19.23, "oi": 31, "volume": 27500, "spot": 217.09, "prev_close": 22.05}, {"strike": 200.0, "option_type": "PE", "ltp": 2.9, "oi": 381, "volume": 825000, "spot": 217.09, "prev_close": 3.35}, {"strike": 202.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 5.45}, {"strike": 202.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 20.35}, {"strike": 205.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 18.7}, {"strike": 205.0, "option_type": "PE", "ltp": 4.1, "oi": 52, "volume": 33000, "spot": 217.09, "prev_close": 6.3}, {"strike": 207.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 7.2}, {"strike": 207.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 17.15}, {"strike": 210.0, "option_type": "PE", "ltp": 5.85, "oi": 107, "volume": 346500, "spot": 217.09, "prev_close": 6.45}, {"strike": 210.0, "option_type": "CE", "ltp": 12.02, "oi": 42, "volume": 35750, "spot": 217.09, "prev_close": 11.95}, {"strike": 212.5, "option_type": "PE", "ltp": 6.5, "oi": 1, "volume": 2750, "spot": 217.09, "prev_close": 9.35}, {"strike": 212.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 14.3}, {"strike": 215.0, "option_type": "CE", "ltp": 9.79, "oi": 28, "volume": 41250, "spot": 217.09, "prev_close": 9.2}, {"strike": 215.0, "option_type": "PE", "ltp": 8.1, "oi": 7, "volume": 8250, "spot": 217.09, "prev_close": 10.5}, {"strike": 217.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 11.75}, {"strike": 217.5, "option_type": "CE", "ltp": 8.62, "oi": 5, "volume": 13750, "spot": 217.09, "prev_close": 11.8}, {"strike": 220.0, "option_type": "CE", "ltp": 7.44, "oi": 128, "volume": 209000, "spot": 217.09, "prev_close": 6.95}, {"strike": 220.0, "option_type": "PE", "ltp": 10.81, "oi": 95, "volume": 140250, "spot": 217.09, "prev_close": 11.45}, {"strike": 222.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 9.6}, {"strike": 222.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 14.55}, {"strike": 225.0, "option_type": "CE", "ltp": 5.85, "oi": 29, "volume": 104500, "spot": 217.09, "prev_close": 8.65}, {"strike": 225.0, "option_type": "PE", "ltp": 13.0, "oi": 6, "volume": 8250, "spot": 217.09, "prev_close": 16.05}, {"strike": 227.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 17.65}, {"strike": 227.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 7.75}, {"strike": 230.0, "option_type": "PE", "ltp": 16.65, "oi": 2, "volume": 5500, "spot": 217.09, "prev_close": 19.3}, {"strike": 230.0, "option_type": "CE", "ltp": 3.96, "oi": 82, "volume": 134750, "spot": 217.09, "prev_close": 3.7}, {"strike": 232.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 6.15}, {"strike": 232.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 21.0}, {"strike": 235.0, "option_type": "PE", "ltp": 20.86, "oi": 183, "volume": 44000, "spot": 217.09, "prev_close": 22.0}, {"strike": 235.0, "option_type": "CE", "ltp": 2.85, "oi": 157, "volume": 63250, "spot": 217.09, "prev_close": 2.55}, {"strike": 240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 26.6}, {"strike": 240.0, "option_type": "CE", "ltp": 2.0, "oi": 161, "volume": 305250, "spot": 217.09, "prev_close": 1.8}], "28-JUL-2026": [{"strike": 180.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 40.05}, {"strike": 180.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 2.05}, {"strike": 190.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 32.0}, {"strike": 190.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 3.85}, {"strike": 195.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 5.1}, {"strike": 195.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 28.35}, {"strike": 200.0, "option_type": "PE", "ltp": 0, "oi": 2, "volume": 0, "spot": 217.09, "prev_close": 6.55}, {"strike": 200.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 24.9}, {"strike": 205.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 21.7}, {"strike": 205.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 8.3}, {"strike": 210.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 18.8}, {"strike": 210.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 10.35}, {"strike": 215.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 12.65}, {"strike": 215.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 16.15}, {"strike": 220.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 13.8}, {"strike": 220.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 15.2}, {"strike": 225.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 11.7}, {"strike": 225.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 18.05}, {"strike": 230.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 21.15}, {"strike": 230.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 9.9}, {"strike": 235.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 8.25}, {"strike": 235.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 24.45}, {"strike": 240.0, "option_type": "CE", "ltp": 4.2, "oi": 4, "volume": 2750, "spot": 217.09, "prev_close": 6.9}, {"strike": 240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 28.0}, {"strike": 250.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09, "prev_close": 35.65}, {"strike": 250.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 217.09, "prev_close": 4.7}]}, "spot": 217.09}};
-        const tickersInfo = {"BHARTIARTL": {"name": "Bharti Airtel", "sector": "Telecom"}, "JIOFIN": {"name": "Jio Finance", "sector": "Finance"}, "SBIN": {"name": "State Bank of India", "sector": "Banking"}, "TATASTEEL": {"name": "Tata Steel (TMPV)", "sector": "Metals"}};
+        const INITIAL_STOCKS = {"BHARTIARTL": {"name": "Bharti Airtel", "sector": "Telecom"}, "JIOFIN": {"name": "Jio Finance", "sector": "Finance"}, "SBIN": {"name": "State Bank of India", "sector": "Banking"}, "TATASTEEL": {"name": "Tata Steel (TMPV)", "sector": "Metals"}};
+        const INITIAL_DATA = {"BHARTIARTL": {"expiries": {"30-JUN-2026": [{"strike": 1520.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1520.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1560.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1560.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1600.0, "option_type": "PE", "ltp": 0, "oi": 14, "volume": 0, "spot": 1826.6}, {"strike": 1600.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1620.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1620.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1640.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1640.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1660.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1660.0, "option_type": "PE", "ltp": 8.3, "oi": 23, "volume": 11875, "spot": 1826.6}, {"strike": 1680.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1680.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1700.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1700.0, "option_type": "PE", "ltp": 13.35, "oi": 81, "volume": 23750, "spot": 1826.6}, {"strike": 1720.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1720.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1740.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6}, {"strike": 1740.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1760.0, "option_type": "PE", "ltp": 27.7, "oi": 6, "volume": 2375, "spot": 1826.6}, {"strike": 1760.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1780.0, "option_type": "CE", "ltp": 0, "oi": 9, "volume": 0, "spot": 1826.6}, {"strike": 1780.0, "option_type": "PE", "ltp": 31.8, "oi": 57, "volume": 3800, "spot": 1826.6}, {"strike": 1800.0, "option_type": "PE", "ltp": 39.15, "oi": 71, "volume": 11875, "spot": 1826.6}, {"strike": 1800.0, "option_type": "CE", "ltp": 84.0, "oi": 17, "volume": 2375, "spot": 1826.6}, {"strike": 1820.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1820.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1840.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6}, {"strike": 1840.0, "option_type": "CE", "ltp": 64.2, "oi": 69, "volume": 37050, "spot": 1826.6}, {"strike": 1860.0, "option_type": "CE", "ltp": 49.8, "oi": 106, "volume": 56525, "spot": 1826.6}, {"strike": 1860.0, "option_type": "PE", "ltp": 0, "oi": 6, "volume": 0, "spot": 1826.6}, {"strike": 1880.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6}, {"strike": 1880.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6}, {"strike": 1900.0, "option_type": "PE", "ltp": 93.0, "oi": 30, "volume": 1900, "spot": 1826.6}, {"strike": 1900.0, "option_type": "CE", "ltp": 39.15, "oi": 254, "volume": 56525, "spot": 1826.6}, {"strike": 1920.0, "option_type": "CE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6}, {"strike": 1920.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1940.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1940.0, "option_type": "CE", "ltp": 27.15, "oi": 21, "volume": 10925, "spot": 1826.6}, {"strike": 1960.0, "option_type": "CE", "ltp": 0, "oi": 11, "volume": 0, "spot": 1826.6}, {"strike": 1960.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1980.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6}, {"strike": 1980.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2000.0, "option_type": "PE", "ltp": 0, "oi": 12, "volume": 0, "spot": 1826.6}, {"strike": 2000.0, "option_type": "CE", "ltp": 15.2, "oi": 191, "volume": 23750, "spot": 1826.6}, {"strike": 2020.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6}, {"strike": 2020.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2040.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2040.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2060.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2060.0, "option_type": "CE", "ltp": 0, "oi": 13, "volume": 0, "spot": 1826.6}, {"strike": 2080.0, "option_type": "CE", "ltp": 7.0, "oi": 5, "volume": 950, "spot": 1826.6}, {"strike": 2080.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2120.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2120.0, "option_type": "CE", "ltp": 0, "oi": 10, "volume": 0, "spot": 1826.6}, {"strike": 2160.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2160.0, "option_type": "CE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6}], "28-JUL-2026": [{"strike": 1600.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1600.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1640.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1640.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1680.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1680.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1720.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1720.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1760.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1760.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1800.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1800.0, "option_type": "PE", "ltp": 0, "oi": 2, "volume": 0, "spot": 1826.6}, {"strike": 1840.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1840.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1880.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1880.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6}, {"strike": 1920.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1920.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1960.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1960.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2000.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2000.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2040.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2040.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2080.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2080.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2160.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 2160.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}], "26-MAY-2026": [{"strike": 1520.0, "option_type": "PE", "ltp": 0.5, "oi": 37, "volume": 475, "spot": 1826.6}, {"strike": 1520.0, "option_type": "CE", "ltp": 313.95, "oi": 25, "volume": 1900, "spot": 1826.6}, {"strike": 1560.0, "option_type": "CE", "ltp": 274.7, "oi": 0, "volume": 1900, "spot": 1826.6}, {"strike": 1560.0, "option_type": "PE", "ltp": 0, "oi": 148, "volume": 0, "spot": 1826.6}, {"strike": 1600.0, "option_type": "CE", "ltp": 0, "oi": 35, "volume": 0, "spot": 1826.6}, {"strike": 1600.0, "option_type": "PE", "ltp": 0.95, "oi": 185, "volume": 2850, "spot": 1826.6}, {"strike": 1620.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1826.6}, {"strike": 1620.0, "option_type": "PE", "ltp": 0, "oi": 23, "volume": 0, "spot": 1826.6}, {"strike": 1640.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1826.6}, {"strike": 1640.0, "option_type": "PE", "ltp": 1.25, "oi": 352, "volume": 589950, "spot": 1826.6}, {"strike": 1660.0, "option_type": "CE", "ltp": 176.0, "oi": 4, "volume": 1900, "spot": 1826.6}, {"strike": 1660.0, "option_type": "PE", "ltp": 1.75, "oi": 143, "volume": 28975, "spot": 1826.6}, {"strike": 1680.0, "option_type": "PE", "ltp": 2.5, "oi": 182, "volume": 39900, "spot": 1826.6}, {"strike": 1680.0, "option_type": "CE", "ltp": 172.6, "oi": 28, "volume": 1900, "spot": 1826.6}, {"strike": 1700.0, "option_type": "PE", "ltp": 3.7, "oi": 587, "volume": 169575, "spot": 1826.6}, {"strike": 1700.0, "option_type": "CE", "ltp": 138.5, "oi": 175, "volume": 1900, "spot": 1826.6}, {"strike": 1720.0, "option_type": "CE", "ltp": 119.7, "oi": 109, "volume": 8550, "spot": 1826.6}, {"strike": 1720.0, "option_type": "PE", "ltp": 5.4, "oi": 535, "volume": 403275, "spot": 1826.6}, {"strike": 1740.0, "option_type": "PE", "ltp": 8.05, "oi": 1099, "volume": 606575, "spot": 1826.6}, {"strike": 1740.0, "option_type": "CE", "ltp": 101.9, "oi": 65, "volume": 32300, "spot": 1826.6}, {"strike": 1760.0, "option_type": "CE", "ltp": 86.3, "oi": 165, "volume": 33725, "spot": 1826.6}, {"strike": 1760.0, "option_type": "PE", "ltp": 11.6, "oi": 711, "volume": 627000, "spot": 1826.6}, {"strike": 1780.0, "option_type": "PE", "ltp": 16.25, "oi": 852, "volume": 706325, "spot": 1826.6}, {"strike": 1780.0, "option_type": "CE", "ltp": 69.75, "oi": 292, "volume": 102125, "spot": 1826.6}, {"strike": 1800.0, "option_type": "PE", "ltp": 22.3, "oi": 1448, "volume": 1124800, "spot": 1826.6}, {"strike": 1800.0, "option_type": "CE", "ltp": 56.6, "oi": 1436, "volume": 546250, "spot": 1826.6}, {"strike": 1820.0, "option_type": "CE", "ltp": 44.4, "oi": 3628, "volume": 2148425, "spot": 1826.6}, {"strike": 1820.0, "option_type": "PE", "ltp": 29.8, "oi": 1538, "volume": 1060200, "spot": 1826.6}, {"strike": 1840.0, "option_type": "CE", "ltp": 34.65, "oi": 2845, "volume": 2927900, "spot": 1826.6}, {"strike": 1840.0, "option_type": "PE", "ltp": 40.45, "oi": 2051, "volume": 1283450, "spot": 1826.6}, {"strike": 1860.0, "option_type": "PE", "ltp": 51.45, "oi": 1457, "volume": 418000, "spot": 1826.6}, {"strike": 1860.0, "option_type": "CE", "ltp": 26.4, "oi": 3162, "volume": 1742300, "spot": 1826.6}, {"strike": 1880.0, "option_type": "PE", "ltp": 64.85, "oi": 766, "volume": 149150, "spot": 1826.6}, {"strike": 1880.0, "option_type": "CE", "ltp": 19.6, "oi": 1828, "volume": 1308150, "spot": 1826.6}, {"strike": 1900.0, "option_type": "CE", "ltp": 14.3, "oi": 5420, "volume": 2360275, "spot": 1826.6}, {"strike": 1900.0, "option_type": "PE", "ltp": 78.3, "oi": 1087, "volume": 50825, "spot": 1826.6}, {"strike": 1920.0, "option_type": "PE", "ltp": 0, "oi": 369, "volume": 0, "spot": 1826.6}, {"strike": 1920.0, "option_type": "CE", "ltp": 10.35, "oi": 1583, "volume": 1059725, "spot": 1826.6}, {"strike": 1940.0, "option_type": "CE", "ltp": 7.35, "oi": 1580, "volume": 741475, "spot": 1826.6}, {"strike": 1940.0, "option_type": "PE", "ltp": 114.8, "oi": 210, "volume": 475, "spot": 1826.6}, {"strike": 1960.0, "option_type": "CE", "ltp": 5.35, "oi": 1214, "volume": 691600, "spot": 1826.6}, {"strike": 1960.0, "option_type": "PE", "ltp": 0, "oi": 195, "volume": 0, "spot": 1826.6}, {"strike": 1980.0, "option_type": "CE", "ltp": 3.9, "oi": 461, "volume": 149150, "spot": 1826.6}, {"strike": 1980.0, "option_type": "PE", "ltp": 0, "oi": 229, "volume": 0, "spot": 1826.6}, {"strike": 2000.0, "option_type": "PE", "ltp": 167.6, "oi": 474, "volume": 3325, "spot": 1826.6}, {"strike": 2000.0, "option_type": "CE", "ltp": 2.95, "oi": 3035, "volume": 470725, "spot": 1826.6}, {"strike": 2020.0, "option_type": "PE", "ltp": 0, "oi": 6, "volume": 0, "spot": 1826.6}, {"strike": 2020.0, "option_type": "CE", "ltp": 2.15, "oi": 651, "volume": 71725, "spot": 1826.6}, {"strike": 2040.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 1826.6}, {"strike": 2040.0, "option_type": "CE", "ltp": 1.8, "oi": 251, "volume": 93575, "spot": 1826.6}, {"strike": 2060.0, "option_type": "CE", "ltp": 1.55, "oi": 934, "volume": 49400, "spot": 1826.6}, {"strike": 2060.0, "option_type": "PE", "ltp": 0, "oi": 121, "volume": 0, "spot": 1826.6}, {"strike": 2080.0, "option_type": "CE", "ltp": 1.25, "oi": 322, "volume": 236550, "spot": 1826.6}, {"strike": 2080.0, "option_type": "PE", "ltp": 0, "oi": 67, "volume": 0, "spot": 1826.6}, {"strike": 2120.0, "option_type": "CE", "ltp": 1.0, "oi": 398, "volume": 21850, "spot": 1826.6}, {"strike": 2120.0, "option_type": "PE", "ltp": 0, "oi": 523, "volume": 0, "spot": 1826.6}, {"strike": 2160.0, "option_type": "CE", "ltp": 0.75, "oi": 260, "volume": 3325, "spot": 1826.6}, {"strike": 2160.0, "option_type": "PE", "ltp": 0, "oi": 76, "volume": 0, "spot": 1826.6}, {"strike": 2240.0, "option_type": "CE", "ltp": 0.55, "oi": 96, "volume": 2375, "spot": 1826.6}]}, "spot": 1826.6}, "JIOFIN": {"expiries": {"26-MAY-2026": [{"strike": 195.0, "option_type": "PE", "ltp": 0, "oi": 17, "volume": 0, "spot": 251.02}, {"strike": 200.0, "option_type": "CE", "ltp": 0, "oi": 39, "volume": 0, "spot": 251.02}, {"strike": 200.0, "option_type": "PE", "ltp": 0.26, "oi": 252, "volume": 77550, "spot": 251.02}, {"strike": 205.0, "option_type": "PE", "ltp": 0.34, "oi": 29, "volume": 4700, "spot": 251.02}, {"strike": 210.0, "option_type": "CE", "ltp": 0, "oi": 14, "volume": 0, "spot": 251.02}, {"strike": 210.0, "option_type": "PE", "ltp": 0.37, "oi": 467, "volume": 63450, "spot": 251.02}, {"strike": 212.5, "option_type": "PE", "ltp": 0, "oi": 38, "volume": 0, "spot": 251.02}, {"strike": 212.5, "option_type": "CE", "ltp": 0, "oi": 28, "volume": 0, "spot": 251.02}, {"strike": 215.0, "option_type": "PE", "ltp": 0.49, "oi": 124, "volume": 51700, "spot": 251.02}, {"strike": 215.0, "option_type": "CE", "ltp": 0, "oi": 20, "volume": 0, "spot": 251.02}, {"strike": 220.0, "option_type": "CE", "ltp": 33.0, "oi": 60, "volume": 4700, "spot": 251.02}, {"strike": 220.0, "option_type": "PE", "ltp": 0.67, "oi": 574, "volume": 806050, "spot": 251.02}, {"strike": 222.5, "option_type": "PE", "ltp": 0.8, "oi": 23, "volume": 9400, "spot": 251.02}, {"strike": 225.0, "option_type": "CE", "ltp": 28.64, "oi": 65, "volume": 32900, "spot": 251.02}, {"strike": 225.0, "option_type": "PE", "ltp": 0.97, "oi": 365, "volume": 674450, "spot": 251.02}, {"strike": 227.5, "option_type": "PE", "ltp": 1.05, "oi": 116, "volume": 37600, "spot": 251.02}, {"strike": 227.5, "option_type": "CE", "ltp": 0, "oi": 41, "volume": 0, "spot": 251.02}, {"strike": 230.0, "option_type": "PE", "ltp": 1.42, "oi": 1175, "volume": 806050, "spot": 251.02}, {"strike": 230.0, "option_type": "CE", "ltp": 23.31, "oi": 279, "volume": 143350, "spot": 251.02}, {"strike": 232.5, "option_type": "PE", "ltp": 0, "oi": 54, "volume": 0, "spot": 251.02}, {"strike": 232.5, "option_type": "CE", "ltp": 21.1, "oi": 51, "volume": 25850, "spot": 251.02}, {"strike": 235.0, "option_type": "PE", "ltp": 2.11, "oi": 1002, "volume": 587500, "spot": 251.02}, {"strike": 235.0, "option_type": "CE", "ltp": 19.08, "oi": 339, "volume": 63450, "spot": 251.02}, {"strike": 237.5, "option_type": "PE", "ltp": 2.62, "oi": 304, "volume": 256150, "spot": 251.02}, {"strike": 237.5, "option_type": "CE", "ltp": 0, "oi": 42, "volume": 0, "spot": 251.02}, {"strike": 240.0, "option_type": "CE", "ltp": 15.09, "oi": 1239, "volume": 561650, "spot": 251.02}, {"strike": 240.0, "option_type": "PE", "ltp": 3.18, "oi": 1611, "volume": 3139600, "spot": 251.02}, {"strike": 242.5, "option_type": "CE", "ltp": 13.39, "oi": 134, "volume": 21150, "spot": 251.02}, {"strike": 242.5, "option_type": "PE", "ltp": 3.77, "oi": 347, "volume": 218550, "spot": 251.02}, {"strike": 245.0, "option_type": "CE", "ltp": 11.57, "oi": 551, "volume": 467650, "spot": 251.02}, {"strike": 245.0, "option_type": "PE", "ltp": 4.69, "oi": 775, "volume": 1536900, "spot": 251.02}, {"strike": 247.5, "option_type": "CE", "ltp": 10.1, "oi": 524, "volume": 220900, "spot": 251.02}, {"strike": 247.5, "option_type": "PE", "ltp": 5.64, "oi": 416, "volume": 639200, "spot": 251.02}, {"strike": 250.0, "option_type": "CE", "ltp": 8.74, "oi": 4562, "volume": 6481300, "spot": 251.02}, {"strike": 250.0, "option_type": "PE", "ltp": 6.8, "oi": 2497, "volume": 3301750, "spot": 251.02}, {"strike": 252.5, "option_type": "CE", "ltp": 7.53, "oi": 906, "volume": 3642500, "spot": 251.02}, {"strike": 252.5, "option_type": "PE", "ltp": 8.05, "oi": 898, "volume": 2119700, "spot": 251.02}, {"strike": 255.0, "option_type": "CE", "ltp": 6.43, "oi": 2552, "volume": 8152150, "spot": 251.02}, {"strike": 255.0, "option_type": "PE", "ltp": 9.53, "oi": 1294, "volume": 2895200, "spot": 251.02}, {"strike": 257.5, "option_type": "PE", "ltp": 10.97, "oi": 310, "volume": 300800, "spot": 251.02}, {"strike": 257.5, "option_type": "CE", "ltp": 5.52, "oi": 378, "volume": 822500, "spot": 251.02}, {"strike": 260.0, "option_type": "CE", "ltp": 4.65, "oi": 5046, "volume": 11014450, "spot": 251.02}, {"strike": 260.0, "option_type": "PE", "ltp": 12.79, "oi": 1346, "volume": 336050, "spot": 251.02}, {"strike": 262.5, "option_type": "PE", "ltp": 0, "oi": 62, "volume": 0, "spot": 251.02}, {"strike": 262.5, "option_type": "CE", "ltp": 3.93, "oi": 208, "volume": 465300, "spot": 251.02}, {"strike": 265.0, "option_type": "CE", "ltp": 3.33, "oi": 877, "volume": 1861200, "spot": 251.02}, {"strike": 265.0, "option_type": "PE", "ltp": 0, "oi": 145, "volume": 0, "spot": 251.02}, {"strike": 267.5, "option_type": "PE", "ltp": 17.58, "oi": 3, "volume": 4700, "spot": 251.02}, {"strike": 267.5, "option_type": "CE", "ltp": 2.87, "oi": 111, "volume": 180950, "spot": 251.02}, {"strike": 270.0, "option_type": "PE", "ltp": 20.19, "oi": 533, "volume": 91650, "spot": 251.02}, {"strike": 270.0, "option_type": "CE", "ltp": 2.37, "oi": 2547, "volume": 3893950, "spot": 251.02}, {"strike": 272.5, "option_type": "PE", "ltp": 0, "oi": 5, "volume": 0, "spot": 251.02}, {"strike": 272.5, "option_type": "CE", "ltp": 2.01, "oi": 170, "volume": 446500, "spot": 251.02}, {"strike": 275.0, "option_type": "PE", "ltp": 24.5, "oi": 75, "volume": 2350, "spot": 251.02}, {"strike": 275.0, "option_type": "CE", "ltp": 1.69, "oi": 975, "volume": 968200, "spot": 251.02}, {"strike": 277.5, "option_type": "CE", "ltp": 1.46, "oi": 123, "volume": 190350, "spot": 251.02}, {"strike": 280.0, "option_type": "CE", "ltp": 1.23, "oi": 1839, "volume": 1877650, "spot": 251.02}, {"strike": 280.0, "option_type": "PE", "ltp": 29.4, "oi": 460, "volume": 47000, "spot": 251.02}, {"strike": 282.5, "option_type": "PE", "ltp": 0, "oi": 9, "volume": 0, "spot": 251.02}, {"strike": 282.5, "option_type": "CE", "ltp": 1.05, "oi": 114, "volume": 143350, "spot": 251.02}, {"strike": 285.0, "option_type": "PE", "ltp": 32.9, "oi": 67, "volume": 65800, "spot": 251.02}, {"strike": 285.0, "option_type": "CE", "ltp": 0.91, "oi": 361, "volume": 690900, "spot": 251.02}, {"strike": 290.0, "option_type": "PE", "ltp": 38.3, "oi": 424, "volume": 9400, "spot": 251.02}, {"strike": 290.0, "option_type": "CE", "ltp": 0.69, "oi": 914, "volume": 545200, "spot": 251.02}, {"strike": 300.0, "option_type": "CE", "ltp": 0.42, "oi": 2367, "volume": 958800, "spot": 251.02}, {"strike": 300.0, "option_type": "PE", "ltp": 48.01, "oi": 1345, "volume": 129250, "spot": 251.02}, {"strike": 310.0, "option_type": "CE", "ltp": 0.28, "oi": 285, "volume": 84600, "spot": 251.02}], "30-JUN-2026": [{"strike": 210.0, "option_type": "PE", "ltp": 0, "oi": 7, "volume": 0, "spot": 251.02}, {"strike": 210.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 215.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 215.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 220.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02}, {"strike": 220.0, "option_type": "PE", "ltp": 2.14, "oi": 52, "volume": 35250, "spot": 251.02}, {"strike": 225.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 225.0, "option_type": "PE", "ltp": 2.85, "oi": 2, "volume": 2350, "spot": 251.02}, {"strike": 227.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 227.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 230.0, "option_type": "PE", "ltp": 3.87, "oi": 77, "volume": 70500, "spot": 251.02}, {"strike": 230.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 232.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 232.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 235.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02}, {"strike": 235.0, "option_type": "PE", "ltp": 4.7, "oi": 11, "volume": 25850, "spot": 251.02}, {"strike": 237.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 237.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 240.0, "option_type": "CE", "ltp": 0, "oi": 2, "volume": 0, "spot": 251.02}, {"strike": 240.0, "option_type": "PE", "ltp": 6.6, "oi": 44, "volume": 63450, "spot": 251.02}, {"strike": 242.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 242.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 245.0, "option_type": "CE", "ltp": 0, "oi": 2, "volume": 0, "spot": 251.02}, {"strike": 245.0, "option_type": "PE", "ltp": 8.5, "oi": 8, "volume": 2350, "spot": 251.02}, {"strike": 247.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 247.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 250.0, "option_type": "PE", "ltp": 10.74, "oi": 70, "volume": 65800, "spot": 251.02}, {"strike": 250.0, "option_type": "CE", "ltp": 14.19, "oi": 209, "volume": 108100, "spot": 251.02}, {"strike": 252.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 252.5, "option_type": "CE", "ltp": 0, "oi": 3, "volume": 0, "spot": 251.02}, {"strike": 255.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 255.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02}, {"strike": 257.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 257.5, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02}, {"strike": 260.0, "option_type": "PE", "ltp": 15.5, "oi": 43, "volume": 9400, "spot": 251.02}, {"strike": 260.0, "option_type": "CE", "ltp": 9.9, "oi": 281, "volume": 119850, "spot": 251.02}, {"strike": 262.5, "option_type": "CE", "ltp": 10.8, "oi": 7, "volume": 11750, "spot": 251.02}, {"strike": 262.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 265.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02}, {"strike": 265.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 267.5, "option_type": "PE", "ltp": 20.0, "oi": 2, "volume": 4700, "spot": 251.02}, {"strike": 267.5, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 251.02}, {"strike": 270.0, "option_type": "CE", "ltp": 6.66, "oi": 133, "volume": 61100, "spot": 251.02}, {"strike": 270.0, "option_type": "PE", "ltp": 22.97, "oi": 44, "volume": 18800, "spot": 251.02}, {"strike": 272.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 272.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 275.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 275.0, "option_type": "CE", "ltp": 5.13, "oi": 18, "volume": 11750, "spot": 251.02}, {"strike": 280.0, "option_type": "CE", "ltp": 4.12, "oi": 86, "volume": 94000, "spot": 251.02}, {"strike": 280.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 285.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 285.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 290.0, "option_type": "PE", "ltp": 0, "oi": 6, "volume": 0, "spot": 251.02}, {"strike": 290.0, "option_type": "CE", "ltp": 2.68, "oi": 116, "volume": 47000, "spot": 251.02}], "28-JUL-2026": [{"strike": 210.0, "option_type": "PE", "ltp": 0, "oi": 4, "volume": 0, "spot": 251.02}, {"strike": 210.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 220.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 220.0, "option_type": "PE", "ltp": 3.05, "oi": 1, "volume": 4700, "spot": 251.02}, {"strike": 225.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 225.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 230.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 230.0, "option_type": "PE", "ltp": 4.73, "oi": 13, "volume": 25850, "spot": 251.02}, {"strike": 235.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 235.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 240.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 245.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 245.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 250.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 250.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 255.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 255.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 260.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 260.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 265.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 265.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 270.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 270.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 275.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 275.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 280.0, "option_type": "CE", "ltp": 0, "oi": 2, "volume": 0, "spot": 251.02}, {"strike": 280.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}, {"strike": 290.0, "option_type": "CE", "ltp": 5.81, "oi": 42, "volume": 49350, "spot": 251.02}, {"strike": 290.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 251.02}]}, "spot": 251.02}, "SBIN": {"expiries": {"26-MAY-2026": [{"strike": 860.0, "option_type": "PE", "ltp": 0.25, "oi": 137, "volume": 3000, "spot": 1092.0}, {"strike": 880.0, "option_type": "PE", "ltp": 0.4, "oi": 146, "volume": 48750, "spot": 1092.0}, {"strike": 900.0, "option_type": "CE", "ltp": 0, "oi": 143, "volume": 0, "spot": 1092.0}, {"strike": 900.0, "option_type": "PE", "ltp": 0.55, "oi": 847, "volume": 405000, "spot": 1092.0}, {"strike": 910.0, "option_type": "PE", "ltp": 0.5, "oi": 104, "volume": 161250, "spot": 1092.0}, {"strike": 920.0, "option_type": "PE", "ltp": 0.65, "oi": 528, "volume": 271500, "spot": 1092.0}, {"strike": 920.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 930.0, "option_type": "PE", "ltp": 0.8, "oi": 396, "volume": 234750, "spot": 1092.0}, {"strike": 930.0, "option_type": "CE", "ltp": 0, "oi": 19, "volume": 0, "spot": 1092.0}, {"strike": 940.0, "option_type": "CE", "ltp": 0, "oi": 20, "volume": 0, "spot": 1092.0}, {"strike": 940.0, "option_type": "PE", "ltp": 1.05, "oi": 358, "volume": 286500, "spot": 1092.0}, {"strike": 950.0, "option_type": "PE", "ltp": 1.35, "oi": 1013, "volume": 333000, "spot": 1092.0}, {"strike": 950.0, "option_type": "CE", "ltp": 136.0, "oi": 253, "volume": 2250, "spot": 1092.0}, {"strike": 960.0, "option_type": "PE", "ltp": 1.85, "oi": 229, "volume": 282750, "spot": 1092.0}, {"strike": 960.0, "option_type": "CE", "ltp": 0, "oi": 26, "volume": 0, "spot": 1092.0}, {"strike": 970.0, "option_type": "CE", "ltp": 0, "oi": 52, "volume": 0, "spot": 1092.0}, {"strike": 970.0, "option_type": "PE", "ltp": 2.35, "oi": 504, "volume": 486000, "spot": 1092.0}, {"strike": 980.0, "option_type": "PE", "ltp": 3.2, "oi": 879, "volume": 702000, "spot": 1092.0}, {"strike": 980.0, "option_type": "CE", "ltp": 108.35, "oi": 355, "volume": 14250, "spot": 1092.0}, {"strike": 990.0, "option_type": "PE", "ltp": 4.1, "oi": 804, "volume": 843750, "spot": 1092.0}, {"strike": 990.0, "option_type": "CE", "ltp": 0, "oi": 7, "volume": 0, "spot": 1092.0}, {"strike": 1000.0, "option_type": "CE", "ltp": 90.0, "oi": 477, "volume": 171000, "spot": 1092.0}, {"strike": 1000.0, "option_type": "PE", "ltp": 5.4, "oi": 4008, "volume": 1939500, "spot": 1092.0}, {"strike": 1010.0, "option_type": "CE", "ltp": 82.05, "oi": 121, "volume": 20250, "spot": 1092.0}, {"strike": 1010.0, "option_type": "PE", "ltp": 6.85, "oi": 572, "volume": 864000, "spot": 1092.0}, {"strike": 1020.0, "option_type": "CE", "ltp": 74.0, "oi": 127, "volume": 33750, "spot": 1092.0}, {"strike": 1020.0, "option_type": "PE", "ltp": 8.6, "oi": 876, "volume": 1448250, "spot": 1092.0}, {"strike": 1030.0, "option_type": "PE", "ltp": 10.85, "oi": 918, "volume": 2076000, "spot": 1092.0}, {"strike": 1030.0, "option_type": "CE", "ltp": 66.0, "oi": 391, "volume": 69750, "spot": 1092.0}, {"strike": 1040.0, "option_type": "PE", "ltp": 13.5, "oi": 1249, "volume": 2472750, "spot": 1092.0}, {"strike": 1040.0, "option_type": "CE", "ltp": 58.55, "oi": 324, "volume": 189000, "spot": 1092.0}, {"strike": 1050.0, "option_type": "PE", "ltp": 16.65, "oi": 2367, "volume": 3521250, "spot": 1092.0}, {"strike": 1050.0, "option_type": "CE", "ltp": 51.9, "oi": 1768, "volume": 1236750, "spot": 1092.0}, {"strike": 1060.0, "option_type": "CE", "ltp": 45.45, "oi": 1447, "volume": 847500, "spot": 1092.0}, {"strike": 1060.0, "option_type": "PE", "ltp": 20.25, "oi": 1510, "volume": 2654250, "spot": 1092.0}, {"strike": 1070.0, "option_type": "CE", "ltp": 39.5, "oi": 1770, "volume": 1394250, "spot": 1092.0}, {"strike": 1070.0, "option_type": "PE", "ltp": 24.4, "oi": 1829, "volume": 2787750, "spot": 1092.0}, {"strike": 1080.0, "option_type": "PE", "ltp": 29.1, "oi": 2128, "volume": 2994000, "spot": 1092.0}, {"strike": 1080.0, "option_type": "CE", "ltp": 34.4, "oi": 2907, "volume": 2755500, "spot": 1092.0}, {"strike": 1090.0, "option_type": "CE", "ltp": 29.5, "oi": 2123, "volume": 5586750, "spot": 1092.0}, {"strike": 1090.0, "option_type": "PE", "ltp": 34.25, "oi": 1636, "volume": 3182250, "spot": 1092.0}, {"strike": 1100.0, "option_type": "PE", "ltp": 40.0, "oi": 5244, "volume": 3338250, "spot": 1092.0}, {"strike": 1100.0, "option_type": "CE", "ltp": 25.3, "oi": 8544, "volume": 14583750, "spot": 1092.0}, {"strike": 1110.0, "option_type": "PE", "ltp": 45.75, "oi": 880, "volume": 665250, "spot": 1092.0}, {"strike": 1110.0, "option_type": "CE", "ltp": 21.35, "oi": 2788, "volume": 4192500, "spot": 1092.0}, {"strike": 1120.0, "option_type": "CE", "ltp": 18.0, "oi": 3473, "volume": 5445750, "spot": 1092.0}, {"strike": 1120.0, "option_type": "PE", "ltp": 52.45, "oi": 1228, "volume": 318750, "spot": 1092.0}, {"strike": 1130.0, "option_type": "PE", "ltp": 59.45, "oi": 337, "volume": 125250, "spot": 1092.0}, {"strike": 1130.0, "option_type": "CE", "ltp": 15.1, "oi": 1421, "volume": 2816250, "spot": 1092.0}, {"strike": 1140.0, "option_type": "CE", "ltp": 12.6, "oi": 1734, "volume": 3469500, "spot": 1092.0}, {"strike": 1140.0, "option_type": "PE", "ltp": 66.95, "oi": 248, "volume": 49500, "spot": 1092.0}, {"strike": 1150.0, "option_type": "PE", "ltp": 74.8, "oi": 1956, "volume": 149250, "spot": 1092.0}, {"strike": 1150.0, "option_type": "CE", "ltp": 10.5, "oi": 4365, "volume": 4298250, "spot": 1092.0}, {"strike": 1160.0, "option_type": "CE", "ltp": 8.7, "oi": 1130, "volume": 1340250, "spot": 1092.0}, {"strike": 1160.0, "option_type": "PE", "ltp": 82.9, "oi": 160, "volume": 18750, "spot": 1092.0}, {"strike": 1170.0, "option_type": "CE", "ltp": 7.15, "oi": 854, "volume": 642000, "spot": 1092.0}, {"strike": 1170.0, "option_type": "PE", "ltp": 91.3, "oi": 49, "volume": 10500, "spot": 1092.0}, {"strike": 1180.0, "option_type": "CE", "ltp": 5.95, "oi": 1086, "volume": 839250, "spot": 1092.0}, {"strike": 1180.0, "option_type": "PE", "ltp": 96.2, "oi": 469, "volume": 15000, "spot": 1092.0}, {"strike": 1190.0, "option_type": "PE", "ltp": 100.45, "oi": 14, "volume": 6000, "spot": 1092.0}, {"strike": 1190.0, "option_type": "CE", "ltp": 5.0, "oi": 553, "volume": 301500, "spot": 1092.0}, {"strike": 1200.0, "option_type": "CE", "ltp": 4.15, "oi": 5913, "volume": 3147750, "spot": 1092.0}, {"strike": 1200.0, "option_type": "PE", "ltp": 118.8, "oi": 1067, "volume": 48000, "spot": 1092.0}, {"strike": 1210.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1210.0, "option_type": "CE", "ltp": 3.4, "oi": 332, "volume": 286500, "spot": 1092.0}, {"strike": 1220.0, "option_type": "PE", "ltp": 0, "oi": 20, "volume": 0, "spot": 1092.0}, {"strike": 1220.0, "option_type": "CE", "ltp": 2.85, "oi": 705, "volume": 408000, "spot": 1092.0}, {"strike": 1240.0, "option_type": "PE", "ltp": 155.2, "oi": 24, "volume": 750, "spot": 1092.0}, {"strike": 1240.0, "option_type": "CE", "ltp": 1.95, "oi": 1104, "volume": 783000, "spot": 1092.0}, {"strike": 1260.0, "option_type": "PE", "ltp": 175.0, "oi": 75, "volume": 750, "spot": 1092.0}, {"strike": 1260.0, "option_type": "CE", "ltp": 1.45, "oi": 709, "volume": 432750, "spot": 1092.0}, {"strike": 1280.0, "option_type": "CE", "ltp": 1.05, "oi": 301, "volume": 115500, "spot": 1092.0}, {"strike": 1280.0, "option_type": "PE", "ltp": 192.0, "oi": 63, "volume": 1500, "spot": 1092.0}, {"strike": 1300.0, "option_type": "CE", "ltp": 0.85, "oi": 2352, "volume": 597000, "spot": 1092.0}], "28-JUL-2026": [{"strike": 880.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 880.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 920.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 920.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 960.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 960.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 980.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 980.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1000.0, "option_type": "PE", "ltp": 17.1, "oi": 13, "volume": 1500, "spot": 1092.0}, {"strike": 1000.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1020.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1020.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0}, {"strike": 1040.0, "option_type": "PE", "ltp": 0, "oi": 3, "volume": 0, "spot": 1092.0}, {"strike": 1040.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1060.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1060.0, "option_type": "PE", "ltp": 0, "oi": 9, "volume": 0, "spot": 1092.0}, {"strike": 1080.0, "option_type": "CE", "ltp": 0, "oi": 10, "volume": 0, "spot": 1092.0}, {"strike": 1080.0, "option_type": "PE", "ltp": 0, "oi": 2, "volume": 0, "spot": 1092.0}, {"strike": 1100.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1100.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1120.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1120.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1140.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1140.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1160.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1160.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1180.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1180.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1200.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1200.0, "option_type": "CE", "ltp": 19.5, "oi": 8, "volume": 1500, "spot": 1092.0}, {"strike": 1240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1240.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}], "30-JUN-2026": [{"strike": 840.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0}, {"strike": 900.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 900.0, "option_type": "PE", "ltp": 2.0, "oi": 62, "volume": 4500, "spot": 1092.0}, {"strike": 920.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 920.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 940.0, "option_type": "PE", "ltp": 4.9, "oi": 14, "volume": 7500, "spot": 1092.0}, {"strike": 940.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 950.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 950.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 960.0, "option_type": "PE", "ltp": 6.85, "oi": 81, "volume": 36750, "spot": 1092.0}, {"strike": 960.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 970.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 970.0, "option_type": "PE", "ltp": 8.0, "oi": 2, "volume": 3000, "spot": 1092.0}, {"strike": 980.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 980.0, "option_type": "PE", "ltp": 8.7, "oi": 14, "volume": 2250, "spot": 1092.0}, {"strike": 990.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0}, {"strike": 990.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1000.0, "option_type": "CE", "ltp": 100.0, "oi": 10, "volume": 2250, "spot": 1092.0}, {"strike": 1000.0, "option_type": "PE", "ltp": 13.0, "oi": 219, "volume": 238500, "spot": 1092.0}, {"strike": 1010.0, "option_type": "PE", "ltp": 12.7, "oi": 3, "volume": 2250, "spot": 1092.0}, {"strike": 1010.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0}, {"strike": 1020.0, "option_type": "CE", "ltp": 0, "oi": 26, "volume": 0, "spot": 1092.0}, {"strike": 1020.0, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0}, {"strike": 1030.0, "option_type": "PE", "ltp": 19.7, "oi": 3, "volume": 1500, "spot": 1092.0}, {"strike": 1030.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1040.0, "option_type": "PE", "ltp": 0, "oi": 19, "volume": 0, "spot": 1092.0}, {"strike": 1040.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1050.0, "option_type": "CE", "ltp": 62.5, "oi": 43, "volume": 12000, "spot": 1092.0}, {"strike": 1050.0, "option_type": "PE", "ltp": 26.65, "oi": 73, "volume": 36750, "spot": 1092.0}, {"strike": 1060.0, "option_type": "PE", "ltp": 27.0, "oi": 10, "volume": 7500, "spot": 1092.0}, {"strike": 1060.0, "option_type": "CE", "ltp": 60.7, "oi": 21, "volume": 6000, "spot": 1092.0}, {"strike": 1070.0, "option_type": "CE", "ltp": 51.5, "oi": 9, "volume": 750, "spot": 1092.0}, {"strike": 1070.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1080.0, "option_type": "CE", "ltp": 46.4, "oi": 57, "volume": 12750, "spot": 1092.0}, {"strike": 1080.0, "option_type": "PE", "ltp": 38.0, "oi": 66, "volume": 10500, "spot": 1092.0}, {"strike": 1090.0, "option_type": "PE", "ltp": 40.0, "oi": 1, "volume": 750, "spot": 1092.0}, {"strike": 1090.0, "option_type": "CE", "ltp": 42.0, "oi": 1, "volume": 3000, "spot": 1092.0}, {"strike": 1100.0, "option_type": "PE", "ltp": 49.4, "oi": 118, "volume": 53250, "spot": 1092.0}, {"strike": 1100.0, "option_type": "CE", "ltp": 38.55, "oi": 353, "volume": 187500, "spot": 1092.0}, {"strike": 1110.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1110.0, "option_type": "CE", "ltp": 0, "oi": 7, "volume": 0, "spot": 1092.0}, {"strike": 1120.0, "option_type": "PE", "ltp": 59.55, "oi": 168, "volume": 1500, "spot": 1092.0}, {"strike": 1120.0, "option_type": "CE", "ltp": 31.25, "oi": 34, "volume": 3000, "spot": 1092.0}, {"strike": 1130.0, "option_type": "CE", "ltp": 24.5, "oi": 8, "volume": 1500, "spot": 1092.0}, {"strike": 1130.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1140.0, "option_type": "CE", "ltp": 23.85, "oi": 67, "volume": 2250, "spot": 1092.0}, {"strike": 1140.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1150.0, "option_type": "PE", "ltp": 80.8, "oi": 4, "volume": 5250, "spot": 1092.0}, {"strike": 1150.0, "option_type": "CE", "ltp": 21.15, "oi": 47, "volume": 27000, "spot": 1092.0}, {"strike": 1160.0, "option_type": "PE", "ltp": 84.45, "oi": 5, "volume": 1500, "spot": 1092.0}, {"strike": 1160.0, "option_type": "CE", "ltp": 18.05, "oi": 35, "volume": 15000, "spot": 1092.0}, {"strike": 1170.0, "option_type": "CE", "ltp": 16.85, "oi": 4, "volume": 2250, "spot": 1092.0}, {"strike": 1170.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1180.0, "option_type": "CE", "ltp": 13.75, "oi": 17, "volume": 11250, "spot": 1092.0}, {"strike": 1180.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1190.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1190.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 1092.0}, {"strike": 1200.0, "option_type": "CE", "ltp": 10.7, "oi": 542, "volume": 166500, "spot": 1092.0}, {"strike": 1200.0, "option_type": "PE", "ltp": 113.5, "oi": 17, "volume": 3000, "spot": 1092.0}, {"strike": 1210.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1210.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1220.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1220.0, "option_type": "CE", "ltp": 0, "oi": 28, "volume": 0, "spot": 1092.0}, {"strike": 1240.0, "option_type": "CE", "ltp": 5.75, "oi": 25, "volume": 10500, "spot": 1092.0}, {"strike": 1240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}, {"strike": 1260.0, "option_type": "CE", "ltp": 5.0, "oi": 1, "volume": 750, "spot": 1092.0}, {"strike": 1260.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 1092.0}]}, "spot": 1092.0}, "TATASTEEL": {"expiries": {"26-MAY-2026": [{"strike": 162.0, "option_type": "CE", "ltp": 0, "oi": 56, "volume": 0, "spot": 217.09}, {"strike": 170.0, "option_type": "PE", "ltp": 0.09, "oi": 341, "volume": 71500, "spot": 217.09}, {"strike": 170.0, "option_type": "CE", "ltp": 0, "oi": 459, "volume": 0, "spot": 217.09}, {"strike": 175.0, "option_type": "CE", "ltp": 0, "oi": 18, "volume": 0, "spot": 217.09}, {"strike": 175.0, "option_type": "PE", "ltp": 0.13, "oi": 179, "volume": 242000, "spot": 217.09}, {"strike": 180.0, "option_type": "PE", "ltp": 0.17, "oi": 982, "volume": 924000, "spot": 217.09}, {"strike": 180.0, "option_type": "CE", "ltp": 37.63, "oi": 184, "volume": 8250, "spot": 217.09}, {"strike": 182.5, "option_type": "PE", "ltp": 0, "oi": 3, "volume": 0, "spot": 217.09}, {"strike": 182.5, "option_type": "CE", "ltp": 0, "oi": 3, "volume": 0, "spot": 217.09}, {"strike": 185.0, "option_type": "PE", "ltp": 0.21, "oi": 347, "volume": 665500, "spot": 217.09}, {"strike": 185.0, "option_type": "CE", "ltp": 0, "oi": 35, "volume": 0, "spot": 217.09}, {"strike": 187.5, "option_type": "PE", "ltp": 0.25, "oi": 152, "volume": 85250, "spot": 217.09}, {"strike": 187.5, "option_type": "CE", "ltp": 0, "oi": 26, "volume": 0, "spot": 217.09}, {"strike": 190.0, "option_type": "CE", "ltp": 28.95, "oi": 442, "volume": 90750, "spot": 217.09}, {"strike": 190.0, "option_type": "PE", "ltp": 0.3, "oi": 1480, "volume": 1278750, "spot": 217.09}, {"strike": 192.5, "option_type": "PE", "ltp": 0.41, "oi": 150, "volume": 165000, "spot": 217.09}, {"strike": 192.5, "option_type": "CE", "ltp": 0, "oi": 36, "volume": 0, "spot": 217.09}, {"strike": 195.0, "option_type": "PE", "ltp": 0.52, "oi": 699, "volume": 2854500, "spot": 217.09}, {"strike": 195.0, "option_type": "CE", "ltp": 0, "oi": 126, "volume": 0, "spot": 217.09}, {"strike": 197.5, "option_type": "PE", "ltp": 0.67, "oi": 203, "volume": 220000, "spot": 217.09}, {"strike": 197.5, "option_type": "CE", "ltp": 0, "oi": 34, "volume": 0, "spot": 217.09}, {"strike": 200.0, "option_type": "CE", "ltp": 18.66, "oi": 1017, "volume": 396000, "spot": 217.09}, {"strike": 200.0, "option_type": "PE", "ltp": 0.9, "oi": 3599, "volume": 5117750, "spot": 217.09}, {"strike": 202.5, "option_type": "CE", "ltp": 16.55, "oi": 51, "volume": 104500, "spot": 217.09}, {"strike": 202.5, "option_type": "PE", "ltp": 1.18, "oi": 459, "volume": 1325500, "spot": 217.09}, {"strike": 205.0, "option_type": "CE", "ltp": 14.2, "oi": 218, "volume": 115500, "spot": 217.09}, {"strike": 205.0, "option_type": "PE", "ltp": 1.58, "oi": 1484, "volume": 3572250, "spot": 217.09}, {"strike": 207.5, "option_type": "PE", "ltp": 2.08, "oi": 853, "volume": 3305500, "spot": 217.09}, {"strike": 207.5, "option_type": "CE", "ltp": 12.56, "oi": 261, "volume": 110000, "spot": 217.09}, {"strike": 210.0, "option_type": "PE", "ltp": 2.71, "oi": 5179, "volume": 11217250, "spot": 217.09}, {"strike": 210.0, "option_type": "CE", "ltp": 10.34, "oi": 6176, "volume": 3544750, "spot": 217.09}, {"strike": 212.5, "option_type": "CE", "ltp": 8.75, "oi": 657, "volume": 1446500, "spot": 217.09}, {"strike": 212.5, "option_type": "PE", "ltp": 3.57, "oi": 844, "volume": 3478750, "spot": 217.09}, {"strike": 215.0, "option_type": "PE", "ltp": 4.57, "oi": 1744, "volume": 11269500, "spot": 217.09}, {"strike": 215.0, "option_type": "CE", "ltp": 7.24, "oi": 3303, "volume": 10359250, "spot": 217.09}, {"strike": 217.5, "option_type": "CE", "ltp": 5.95, "oi": 1486, "volume": 8516750, "spot": 217.09}, {"strike": 217.5, "option_type": "PE", "ltp": 5.8, "oi": 717, "volume": 4268000, "spot": 217.09}, {"strike": 220.0, "option_type": "PE", "ltp": 7.09, "oi": 1115, "volume": 4669500, "spot": 217.09}, {"strike": 220.0, "option_type": "CE", "ltp": 4.8, "oi": 4722, "volume": 30621250, "spot": 217.09}, {"strike": 222.5, "option_type": "PE", "ltp": 8.54, "oi": 163, "volume": 635250, "spot": 217.09}, {"strike": 222.5, "option_type": "CE", "ltp": 3.81, "oi": 571, "volume": 3396250, "spot": 217.09}, {"strike": 225.0, "option_type": "PE", "ltp": 10.29, "oi": 487, "volume": 536250, "spot": 217.09}, {"strike": 225.0, "option_type": "CE", "ltp": 2.99, "oi": 1678, "volume": 9058500, "spot": 217.09}, {"strike": 227.5, "option_type": "PE", "ltp": 12.11, "oi": 36, "volume": 110000, "spot": 217.09}, {"strike": 227.5, "option_type": "CE", "ltp": 2.3, "oi": 381, "volume": 1916750, "spot": 217.09}, {"strike": 230.0, "option_type": "PE", "ltp": 13.95, "oi": 232, "volume": 338250, "spot": 217.09}, {"strike": 230.0, "option_type": "CE", "ltp": 1.72, "oi": 3437, "volume": 9176750, "spot": 217.09}, {"strike": 232.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 232.5, "option_type": "CE", "ltp": 1.29, "oi": 257, "volume": 921250, "spot": 217.09}, {"strike": 235.0, "option_type": "CE", "ltp": 0.92, "oi": 2297, "volume": 3817000, "spot": 217.09}, {"strike": 235.0, "option_type": "PE", "ltp": 18.16, "oi": 51, "volume": 85250, "spot": 217.09}, {"strike": 240.0, "option_type": "PE", "ltp": 21.59, "oi": 173, "volume": 38500, "spot": 217.09}, {"strike": 240.0, "option_type": "CE", "ltp": 0.48, "oi": 1915, "volume": 5280000, "spot": 217.09}], "30-JUN-2026": [{"strike": 160.0, "option_type": "PE", "ltp": 0.41, "oi": 8, "volume": 2750, "spot": 217.09}, {"strike": 185.0, "option_type": "PE", "ltp": 1.0, "oi": 50, "volume": 22000, "spot": 217.09}, {"strike": 185.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 190.0, "option_type": "PE", "ltp": 1.38, "oi": 151, "volume": 181500, "spot": 217.09}, {"strike": 190.0, "option_type": "CE", "ltp": 0, "oi": 180, "volume": 0, "spot": 217.09}, {"strike": 195.0, "option_type": "PE", "ltp": 2.0, "oi": 5, "volume": 5500, "spot": 217.09}, {"strike": 195.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 217.09}, {"strike": 197.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 197.5, "option_type": "PE", "ltp": 0, "oi": 1, "volume": 0, "spot": 217.09}, {"strike": 200.0, "option_type": "CE", "ltp": 19.23, "oi": 31, "volume": 27500, "spot": 217.09}, {"strike": 200.0, "option_type": "PE", "ltp": 2.9, "oi": 381, "volume": 825000, "spot": 217.09}, {"strike": 202.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 202.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 205.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 205.0, "option_type": "PE", "ltp": 4.1, "oi": 52, "volume": 33000, "spot": 217.09}, {"strike": 207.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 207.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 210.0, "option_type": "PE", "ltp": 5.85, "oi": 107, "volume": 346500, "spot": 217.09}, {"strike": 210.0, "option_type": "CE", "ltp": 12.02, "oi": 42, "volume": 35750, "spot": 217.09}, {"strike": 212.5, "option_type": "PE", "ltp": 6.5, "oi": 1, "volume": 2750, "spot": 217.09}, {"strike": 212.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 215.0, "option_type": "CE", "ltp": 9.79, "oi": 28, "volume": 41250, "spot": 217.09}, {"strike": 215.0, "option_type": "PE", "ltp": 8.1, "oi": 7, "volume": 8250, "spot": 217.09}, {"strike": 217.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 217.5, "option_type": "CE", "ltp": 8.62, "oi": 5, "volume": 13750, "spot": 217.09}, {"strike": 220.0, "option_type": "CE", "ltp": 7.44, "oi": 128, "volume": 209000, "spot": 217.09}, {"strike": 220.0, "option_type": "PE", "ltp": 10.81, "oi": 95, "volume": 140250, "spot": 217.09}, {"strike": 222.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 222.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 225.0, "option_type": "CE", "ltp": 5.85, "oi": 29, "volume": 104500, "spot": 217.09}, {"strike": 225.0, "option_type": "PE", "ltp": 13.0, "oi": 6, "volume": 8250, "spot": 217.09}, {"strike": 227.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 227.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 230.0, "option_type": "PE", "ltp": 16.65, "oi": 2, "volume": 5500, "spot": 217.09}, {"strike": 230.0, "option_type": "CE", "ltp": 3.96, "oi": 82, "volume": 134750, "spot": 217.09}, {"strike": 232.5, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 232.5, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 235.0, "option_type": "PE", "ltp": 20.86, "oi": 183, "volume": 44000, "spot": 217.09}, {"strike": 235.0, "option_type": "CE", "ltp": 2.85, "oi": 157, "volume": 63250, "spot": 217.09}, {"strike": 240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 240.0, "option_type": "CE", "ltp": 2.0, "oi": 161, "volume": 305250, "spot": 217.09}], "28-JUL-2026": [{"strike": 180.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 180.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 190.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 190.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 195.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 195.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 200.0, "option_type": "PE", "ltp": 0, "oi": 2, "volume": 0, "spot": 217.09}, {"strike": 200.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 205.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 205.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 210.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 210.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 215.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 215.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 220.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 220.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 225.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 225.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 230.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 230.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 235.0, "option_type": "CE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 235.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 240.0, "option_type": "CE", "ltp": 4.2, "oi": 4, "volume": 2750, "spot": 217.09}, {"strike": 240.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 250.0, "option_type": "PE", "ltp": 0, "oi": 0, "volume": 0, "spot": 217.09}, {"strike": 250.0, "option_type": "CE", "ltp": 0, "oi": 1, "volume": 0, "spot": 217.09}]}, "spot": 217.09}};
+        const NEWS_DATA = {"BHARTIARTL": [{"title": "5G Rollout Accelerates", "date": "07-May-2026", "source": "NSE"}, {"title": "Bharti Airtel Q1 Results Strong", "date": "06-May-2026", "source": "BSE"}, {"title": "Telecom Sector Outlook Positive", "date": "05-May-2026", "source": "Reuters"}], "JIOFIN": [{"title": "Jio Finance Expansion Plans", "date": "07-May-2026", "source": "NSE"}, {"title": "NBFC Sector Rally Continues", "date": "06-May-2026", "source": "BSE"}, {"title": "Retail Credit Growth Accelerates", "date": "05-May-2026", "source": "Reuters"}], "SBIN": [{"title": "SBI Q1 Profit Beats Estimates", "date": "07-May-2026", "source": "NSE"}, {"title": "Banking Sector Shows Strength", "date": "06-May-2026", "source": "BSE"}, {"title": "NPA Ratio Improves", "date": "05-May-2026", "source": "Reuters"}], "TATASTEEL": [{"title": "Steel Prices Rally on Global Demand", "date": "07-May-2026", "source": "NSE"}, {"title": "Tata Steel Capacity Expansion", "date": "06-May-2026", "source": "BSE"}, {"title": "Commodity Markets Show Recovery", "date": "05-May-2026", "source": "Reuters"}]};
         
-        // State
-        let currentStock = 'BHARTIARTL';
+        let stocksConfig = JSON.parse(localStorage.getItem('stocksConfig')) || INITIAL_STOCKS;
+        let stocksData = INITIAL_DATA;
+        let currentStock = Object.keys(stocksConfig)[0] || 'BHARTIARTL';
         let currentExpiry = null;
         let oiChart = null;
         
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
-            renderStockSelector();
+            initializeData();
+            renderStocks();
             if (!currentExpiry && stocksData[currentStock]) {
-                const expiries = Object.keys(stocksData[currentStock]['expiries']).sort();
-                currentExpiry = expiries[0];
+                currentExpiry = Object.keys(stocksData[currentStock]['expiries']).sort()[0];
             }
-            updateDisplay();
-            generateShareLink();
+            update();
         });
         
-        function renderStockSelector() {
+        function initializeData() {
+            // Ensure current stock exists in config
+            if (!stocksConfig[currentStock]) {
+                currentStock = Object.keys(stocksConfig)[0] || 'BHARTIARTL';
+            }
+        }
+        
+        function renderStocks() {
             const grid = document.getElementById('stockGrid');
-            const stocks = ['BHARTIARTL', 'JIOFIN', 'SBIN', 'TATASTEEL'];
+            grid.innerHTML = '';
             
-            stocks.forEach(ticker => {
-                const info = tickersInfo[ticker];
-                const spot = stocksData[ticker]['spot'] || 0;
+            Object.keys(stocksConfig).forEach(ticker => {
+                const info = stocksConfig[ticker];
+                const spot = stocksData[ticker] ? stocksData[ticker]['spot'] || 0 : 0;
                 
                 const btn = document.createElement('div');
                 btn.className = 'stock-btn' + (ticker === currentStock ? ' active' : '');
                 btn.innerHTML = `
                     <div class="sb-ticker">${ticker}</div>
                     <div class="sb-name">${info['name']}</div>
-                    <div class="sb-sector">${info['sector']}</div>
-                    <div class="sb-spot">
-                        <span class="sb-label">Spot:</span>
-                        <span class="sb-price">₹${spot.toFixed(2)}</span>
-                    </div>
+                    <div class="sb-price">₹${spot.toFixed(2)}</div>
                 `;
                 btn.onclick = () => selectStock(ticker);
                 grid.appendChild(btn);
@@ -794,152 +638,123 @@
         
         function selectStock(ticker) {
             currentStock = ticker;
-            const expiries = Object.keys(stocksData[ticker]['expiries']).sort();
-            currentExpiry = expiries[0];
-            
-            document.querySelectorAll('.stock-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            if (stocksData[ticker]) {
+                currentExpiry = Object.keys(stocksData[ticker]['expiries']).sort()[0];
+            }
+            document.querySelectorAll('.stock-btn').forEach(b => b.classList.remove('active'));
             event.target.closest('.stock-btn').classList.add('active');
-            
-            updateDisplay();
+            update();
         }
         
-        function updateDisplay() {
-            renderExpiryTabs();
-            renderChainTable();
+        function update() {
+            renderExpiries();
+            renderChain();
             updateAnalysis();
             updateChart();
-            renderStrategies();
+            renderNews();
         }
         
-        function renderExpiryTabs() {
+        function renderExpiries() {
             const container = document.getElementById('expiryTabs');
             container.innerHTML = '';
             
-            const expiries = Object.keys(stocksData[currentStock]['expiries']).sort();
+            if (!stocksData[currentStock]) return;
             
+            const expiries = Object.keys(stocksData[currentStock]['expiries']).sort();
             expiries.forEach(expiry => {
                 const btn = document.createElement('button');
                 btn.className = 'exp-btn' + (expiry === currentExpiry ? ' active' : '');
-                btn.textContent = expiry;
+                btn.textContent = expiry.split('-')[0];
                 btn.onclick = () => {
                     currentExpiry = expiry;
-                    updateDisplay();
+                    update();
                 };
                 container.appendChild(btn);
             });
         }
         
-        function renderChainTable() {
-            const chain = stocksData[currentStock]['expiries'][currentExpiry];
-            if (!chain) return;
+        function renderChain() {
+            if (!stocksData[currentStock] || !currentExpiry) return;
             
-            // Separate CE and PE
+            const chain = stocksData[currentStock]['expiries'][currentExpiry];
             const ceData = chain.filter(x => x['option_type'] === 'CE');
             const peData = chain.filter(x => x['option_type'] === 'PE');
-            
-            // Get unique strikes and sort
             const allStrikes = Array.from(new Set([...ceData.map(x => x['strike']), ...peData.map(x => x['strike'])])).sort((a, b) => a - b);
-            
             const atmStrike = Math.round(stocksData[currentStock]['spot'] / 100) * 100;
-            const atmIndex = allStrikes.findIndex(s => s >= atmStrike);
             
             const table = document.querySelector('table.chain');
             const tbody = table.querySelector('tbody');
             tbody.innerHTML = '';
             
-            // Render rows
-            allStrikes.forEach((strike, idx) => {
+            allStrikes.forEach(strike => {
                 const ce = ceData.find(x => x['strike'] === strike);
                 const pe = peData.find(x => x['strike'] === strike);
-                
                 const isAtm = Math.abs(strike - atmStrike) < 50;
                 const row = document.createElement('tr');
                 if (isAtm) row.classList.add('atm-row');
                 
-                const ceSignal = ce ? getSignal(ce, ceData) : '—';
-                const peSignal = pe ? getSignal(pe, peData) : '—';
-                
                 row.innerHTML = `
-                    <td class="ce-side signal-cell signal-${ceSignal.toLowerCase()}">${ceSignal}</td>
-                    <td class="ce-side ltp">${ce ? '₹' + ce['ltp'].toFixed(2) : '—'}</td>
-                    <td class="ce-side">${ce ? '<span class="oi-bar" style="width:' + (Math.min(ce['oi'], 10000) / 100) + 'px"></span>' + ce['oi'] : '—'}</td>
+                    <td>${ce ? ce['ltp'].toFixed(1) : '—'}</td>
+                    <td>${ce ? (ce['oi']/1000).toFixed(0) : '—'}</td>
                     <td class="strike-cell">${strike.toFixed(0)}</td>
-                    <td class="pe-side">${pe ? '<span class="oi-bar" style="width:' + (Math.min(pe['oi'], 10000) / 100) + 'px"></span>' + pe['oi'] : '—'}</td>
-                    <td class="pe-side ltp">${pe ? '₹' + pe['ltp'].toFixed(2) : '—'}</td>
-                    <td class="pe-side signal-cell signal-${peSignal.toLowerCase()}">${peSignal}</td>
+                    <td>${pe ? (pe['oi']/1000).toFixed(0) : '—'}</td>
+                    <td>${pe ? pe['ltp'].toFixed(1) : '—'}</td>
                 `;
                 tbody.appendChild(row);
             });
         }
         
-        function getSignal(option, allOptions) {
-            const maxOiOption = allOptions.reduce((prev, current) => (prev['oi'] > current['oi']) ? prev : current);
-            const maxOiStrike = maxOiOption['strike'];
-            
-            if (option['strike'] === maxOiStrike) {
-                return option['option_type'] === 'CE' ? 'SELL CE' : 'BUY PE';
-            } else if (Math.abs(option['strike'] - stocksData[currentStock]['spot']) < 100) {
-                return option['option_type'] === 'CE' ? 'BUY CE' : 'SELL PE';
-            }
-            return '—';
-        }
-        
         function updateAnalysis() {
+            if (!stocksData[currentStock] || !currentExpiry) return;
+            
             const chain = stocksData[currentStock]['expiries'][currentExpiry];
             const ceOi = chain.filter(x => x['option_type'] === 'CE').reduce((sum, x) => sum + x['oi'], 0);
             const peOi = chain.filter(x => x['option_type'] === 'PE').reduce((sum, x) => sum + x['oi'], 0);
             const pcr = peOi / ceOi;
             
-            const ceAtm = chain.filter(x => x['option_type'] === 'CE' && Math.abs(x['strike'] - stocksData[currentStock]['spot']) < 50)[0];
-            const peAtm = chain.filter(x => x['option_type'] === 'PE' && Math.abs(x['strike'] - stocksData[currentStock]['spot']) < 50)[0];
-            const atmStraddle = (ceAtm ? ceAtm['ltp'] : 0) + (peAtm ? peAtm['ltp'] : 0);
-            
             document.getElementById('pcrValue').textContent = pcr.toFixed(2);
-            document.getElementById('atmStraddle').textContent = '₹' + atmStraddle.toFixed(2);
             document.getElementById('spotPrice').textContent = '₹' + stocksData[currentStock]['spot'].toFixed(2);
             
-            // Sentiment
             let sentiment = 'NEUTRAL';
             let sentimentPercent = 50;
             if (pcr > 1.3) {
-                sentiment = 'BULLISH';
+                sentiment = '📈 BULLISH';
                 sentimentPercent = 75;
             } else if (pcr < 0.9) {
-                sentiment = 'BEARISH';
+                sentiment = '📉 BEARISH';
                 sentimentPercent = 25;
             }
             
             document.getElementById('sentimentFill').style.width = sentimentPercent + '%';
             document.getElementById('signalVerdict').textContent = sentiment;
-            document.getElementById('signalDesc').textContent = `PCR: ${pcr.toFixed(2)} • Trend: ${sentiment}`;
+        }
+        
+        function renderNews() {
+            const container = document.getElementById('newsList');
+            container.innerHTML = '';
             
-            // PCR Badge
-            const badge = document.getElementById('pcrBadge');
-            const badgeClass = sentiment === 'BULLISH' ? 'bull' : sentiment === 'BEARISH' ? 'bear' : 'neutral';
-            badge.className = 'pcr-badge ' + badgeClass;
-            badge.textContent = sentiment + ' (PCR: ' + pcr.toFixed(2) + ')';
+            const news = NEWS_DATA[currentStock] || [];
+            news.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'news-item';
+                div.innerHTML = `
+                    <div class="news-title">${item['title']}</div>
+                    <div class="news-meta">${item['date']} • ${item['source']}</div>
+                `;
+                container.appendChild(div);
+            });
         }
         
         function updateChart() {
+            if (!stocksData[currentStock] || !currentExpiry) return;
+            
             const chain = stocksData[currentStock]['expiries'][currentExpiry];
-            const spot = stocksData[currentStock]['spot'];
-            
             const ceChain = chain.filter(x => x['option_type'] === 'CE').sort((a, b) => a['strike'] - b['strike']);
-            const peChain = chain.filter(x => x['option_type'] === 'PE').sort((a, b) => a['strike'] - b['strike']);
-            
+            const spot = stocksData[currentStock]['spot'];
             const atmIndex = ceChain.findIndex(x => x['strike'] >= spot);
-            const strikes = ceChain.slice(Math.max(0, atmIndex - 6), atmIndex + 7).map(x => x['strike']);
+            const strikes = ceChain.slice(Math.max(0, atmIndex - 4), atmIndex + 5).map(x => x['strike']);
             
-            const ceOi = strikes.map(s => {
-                const ce = ceChain.find(x => x['strike'] === s);
-                return ce ? ce['oi'] : 0;
-            });
-            const peOi = strikes.map(s => {
-                const pe = peChain.find(x => x['strike'] === s);
-                return pe ? pe['oi'] : 0;
-            });
+            const ceOi = strikes.map(s => {const ce = ceChain.find(x => x['strike'] === s); return ce ? ce['oi'] : 0;});
             
             const ctx = document.getElementById('oiChart').getContext('2d');
             if (oiChart) oiChart.destroy();
@@ -948,30 +763,19 @@
                 type: 'bar',
                 data: {
                     labels: strikes.map(s => s.toFixed(0)),
-                    datasets: [
-                        {
-                            label: 'Call OI',
-                            data: ceOi,
-                            backgroundColor: 'rgba(63, 185, 80, 0.7)',
-                            borderColor: 'rgba(63, 185, 80, 1)',
-                            borderWidth: 1,
-                        },
-                        {
-                            label: 'Put OI',
-                            data: peOi,
-                            backgroundColor: 'rgba(248, 81, 73, 0.7)',
-                            borderColor: 'rgba(248, 81, 73, 1)',
-                            borderWidth: 1,
-                        }
-                    ]
+                    datasets: [{
+                        label: 'Call OI',
+                        data: ceOi,
+                        backgroundColor: 'rgba(63, 185, 80, 0.6)',
+                        borderColor: 'rgba(63, 185, 80, 1)',
+                        borderWidth: 1,
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            labels: { color: '#8b949e', font: { size: 10 } }
-                        }
+                        legend: { display: false }
                     },
                     scales: {
                         x: { ticks: { color: '#8b949e', font: { size: 9 } } },
@@ -981,37 +785,81 @@
             });
         }
         
-        function renderStrategies() {
-            // Simple strategy rendering
-            const container = document.getElementById('strategies');
-            container.innerHTML = `
-                <div class="strategy-item">
-                    <div class="strategy-name">📈 BUY CALL</div>
-                    <div class="strategy-detail">ATM Strike | Max Profit: Unlimited</div>
-                </div>
-                <div class="strategy-item">
-                    <div class="strategy-name">📉 BUY PUT</div>
-                    <div class="strategy-detail">OTM Strike | Max Profit: Strike × QTY</div>
-                </div>
-                <div class="strategy-item">
-                    <div class="strategy-name">⚖️ STRADDLE</div>
-                    <div class="strategy-detail">ATM Call + Put | Max Loss: Total Premium</div>
-                </div>
-            `;
+        // REFRESH FUNCTIONALITY
+        function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                update();
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                alert('✅ Data refreshed!');
+            }, 1500);
         }
         
-        function generateShareLink() {
-            const baseUrl = window.location.href.split('?')[0];
-            const link = baseUrl + '?stock=' + currentStock + '&expiry=' + currentExpiry;
-            document.getElementById('shareLink').textContent = link;
-            document.getElementById('shareLink').title = 'Click to copy: ' + link;
+        // CONFIG MODAL
+        function openConfig() {
+            renderConfigList();
+            document.getElementById('configModal').classList.add('show');
         }
         
-        function copyLink() {
-            const link = document.getElementById('shareLink').textContent;
-            navigator.clipboard.writeText(link).then(() => {
-                alert('Link copied to clipboard!');
+        function closeConfig() {
+            document.getElementById('configModal').classList.remove('show');
+        }
+        
+        function renderConfigList() {
+            const list = document.getElementById('configList');
+            list.innerHTML = '<div class="config-label">Current Scrips</div>';
+            
+            Object.keys(stocksConfig).forEach(ticker => {
+                const info = stocksConfig[ticker];
+                const div = document.createElement('div');
+                div.className = 'config-group';
+                div.innerHTML = `
+                    <label class="config-label">${ticker}</label>
+                    <input type="text" value="${info['name']}" class="config-input" placeholder="Company Name">
+                    <input type="text" value="${info['sector']}" class="config-input" placeholder="Sector">
+                    <button class="remove-btn" onclick="removeScrip('${ticker}')">Remove</button>
+                `;
+                list.appendChild(div);
             });
+        }
+        
+        function addNewScrip() {
+            const ticker = document.getElementById('newTicker').value.toUpperCase();
+            const name = document.getElementById('newName').value;
+            const sector = document.getElementById('newSector').value;
+            
+            if (!ticker || !name || !sector) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            stocksConfig[ticker] = { name, sector };
+            renderConfigList();
+            document.getElementById('newTicker').value = '';
+            document.getElementById('newName').value = '';
+            document.getElementById('newSector').value = '';
+        }
+        
+        function removeScrip(ticker) {
+            if (confirm(`Remove ${ticker}?`)) {
+                delete stocksConfig[ticker];
+                if (currentStock === ticker) {
+                    currentStock = Object.keys(stocksConfig)[0];
+                }
+                renderConfigList();
+            }
+        }
+        
+        function saveConfig() {
+            localStorage.setItem('stocksConfig', JSON.stringify(stocksConfig));
+            renderStocks();
+            closeConfig();
+            update();
+            alert('✅ Configuration saved!');
         }
     </script>
 </body>
