@@ -116,6 +116,7 @@ tbody td{padding:.32rem .5rem;border-bottom:1px solid rgba(48,54,61,.45);
   width:100%;justify-content:center;margin-top:.38rem}
 .btn-save{background:var(--c1);color:#000;font-weight:700;
   width:100%;justify-content:center;margin-top:.55rem}
+.chart-wrap{position:relative;height:220px;margin-top:.5rem}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--s2)}
 ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
@@ -171,6 +172,12 @@ tbody td{padding:.32rem .5rem;border-bottom:1px solid rgba(48,54,61,.45);
         <span class="av" id="aSent" style="font-size:.85rem">&#8212;</span>
       </div>
     </div>
+
+    <div class="panel">
+      <div class="ptitle">&#128200; OI Chart &#8212; CE vs PE (K) &nbsp;<span id="chartExpLabel" style="color:var(--c1);font-weight:600"></span></div>
+      <div class="chart-wrap"><canvas id="oiChart"></canvas></div>
+    </div>
+
     <div class="panel">
       <div class="ptitle">&#128240; Latest News &amp; Market Prediction</div>
       <div id="newsBox"></div>
@@ -217,7 +224,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 function loadWL(){try{return JSON.parse(localStorage.getItem("nse_wl5"))||DEF_WL;}catch{return DEF_WL;}}
 function saveWL(){localStorage.setItem("nse_wl5",JSON.stringify(watchlist));}
 function firstExp(a){if(!D[a])return""; return Object.keys(D[a].expiries).sort()[0]||"";}
-function render(){renderGrid();renderExpiries();renderChain();renderAnalysis();renderNews();}
+function render(){renderGrid();renderExpiries();renderChain();renderAnalysis();renderChart();renderNews();}
 function renderGrid(){
   const el=document.getElementById("stockGrid"); el.innerHTML="";
   watchlist.forEach(sym=>{
@@ -405,6 +412,70 @@ function saveCfg(){
   if(!watchlist.includes(curAsset)){curAsset=watchlist[0]||"";curExpiry=firstExp(curAsset);}
   closeCfg();render();toast("&#10003; Watchlist saved!","ok");
 }
+// ── OI CHART ──────────────────────────────────────────────────────────────
+let _oiChart = null;
+function renderChart(){
+  const ctx = document.getElementById('oiChart').getContext('2d');
+  if(!D[curAsset] || !curExpiry){
+    if(_oiChart){_oiChart.destroy();_oiChart=null;}
+    return;
+  }
+  const chain  = D[curAsset].expiries[curExpiry] || [];
+  const spot   = D[curAsset].spot;
+  const ceMap  = {}, peMap = {};
+  chain.forEach(c => c.option_type==='CE' ? ceMap[c.strike]=c : peMap[c.strike]=c);
+  const strikes = [...new Set(chain.map(c=>c.strike))].sort((a,b)=>a-b);
+  // ATM index — take ±8 strikes around ATM for readability
+  const atmIdx = strikes.reduce((bi,s,i)=>Math.abs(s-spot)<Math.abs(strikes[bi]-spot)?i:bi,0);
+  const lo = Math.max(0, atmIdx-8), hi = Math.min(strikes.length-1, atmIdx+8);
+  const visible = strikes.slice(lo, hi+1);
+  const ceOI = visible.map(s=>+(ceMap[s]?ceMap[s].oi/1000:0).toFixed(1));
+  const peOI = visible.map(s=>+(peMap[s]?peMap[s].oi/1000:0).toFixed(1));
+  const labels = visible.map(s=>s%1===0?String(s.toFixed(0)):String(s));
+
+  document.getElementById('chartExpLabel').textContent = curExpiry;
+
+  if(_oiChart){_oiChart.destroy();}
+  _oiChart = new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'CE OI (K)',data:ceOI,
+         backgroundColor:'rgba(63,185,80,0.55)',
+         borderColor:'rgba(63,185,80,1)',borderWidth:1},
+        {label:'PE OI (K)',data:peOI,
+         backgroundColor:'rgba(248,81,73,0.55)',
+         borderColor:'rgba(248,81,73,1)',borderWidth:1},
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      animation:{duration:300},
+      plugins:{
+        legend:{
+          display:true,
+          position:'top',
+          labels:{color:'#8b949e',font:{size:10},boxWidth:12}
+        },
+        tooltip:{
+          callbacks:{
+            title:ctx=>'Strike: '+ctx[0].label,
+            label:ctx=>ctx.dataset.label+': '+ctx.parsed.y+' K'
+          }
+        }
+      },
+      scales:{
+        x:{ticks:{color:'#8b949e',font:{size:9}},
+           grid:{color:'rgba(48,54,61,0.5)'}},
+        y:{ticks:{color:'#8b949e',font:{size:9}},
+           grid:{color:'rgba(48,54,61,0.5)'},
+           title:{display:true,text:'OI (K)',color:'#6e7681',font:{size:9}}}
+      }
+    }
+  });
+}
+
 let _tt;
 function toast(msg,type="ok"){
   const el=document.getElementById("toast");
